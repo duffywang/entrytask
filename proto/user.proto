@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package proto;
+//go 1.14版本后，proto文件如果不添加go_package会报错
+//Please specify either a “go_package”option in the .proto source file，or a "M" argument on the command line
+//进入该文件
+option go_package =".;proto";
+
+
+service UserService {
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc RegisterUser (RegisterUserReuqest) returns (RegisterUserResponse);
+    rpc EditUser (EditUserRequest) returns (EditUserResponse);
+    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+
+}
+
+message LoginRequest{
+    string username = 1;
+    string password = 2;
+}
+
+message RegisterUserReuqest{
+    string username = 1;
+    string password = 2;
+    string nickname = 3;
+    string prodile_pic = 4;
+}
+
+message EditUserRequest {
+    string session_id = 1;
+    string nickname = 2;
+    string profile_pic = 3;
+}
+
+message GetUserRequest {
+    string session_id = 1;
+}
+
+message LoginResponse {
+    string session_id = 1;
+}
+
+message GetUserResponse {
+    string username = 1;
+    string nickname = 2;
+    string prodile_pic = 3;
+    reserved 10;
+}
+
+message RegisterUserResponse {
+    
+}
+
+message EditUserResponse {
+    
+}

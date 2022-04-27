@@ -9,9 +9,9 @@ import (
 )
 
 type CommonModel struct {
-	ID         int32 `json:"id"`
-	CreateTime int32 `json:"createTime,omitempty" `
-	UpdateTime int32 `json:"updateTime,omitempty"`
+	ID         uint32 `json:"id"`
+	CreateTime uint32 `json:"createTime,omitempty" `
+	UpdateTime uint32 `json:"updateTime,omitempty"`
 }
 
 /*
