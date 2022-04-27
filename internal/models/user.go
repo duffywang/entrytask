@@ -3,10 +3,11 @@ import "fmt"
 
 //用户
 type User struct {
+	*CommonModel
 	UserName string `json:"userName"`
 	NickName string `json:"nickName"`
 	PassWord string `json:"passWord"`
-	ProfilePic string `json:"profilePic"`
+	ProfilePic string `json:"profile_pic"`
 	Status uint8 `json:"status"`
 }
 
@@ -19,9 +20,9 @@ func NewUser(username string, nickname string, picture string)User {
 	}
 }
 
-
-
-
+func (u User)Create(db *gorm.DB) (*User, err){
+	db.Create()
+}
 
 
 
