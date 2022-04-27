@@ -2,12 +2,14 @@ package models
 
 import (
 	"fmt"
-	"gorm.io/gorm"
+	"time"
+
 	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 type CommonModel struct {
-	ID int32 `json:"id"`
+	ID         int32 `json:"id"`
 	CreateTime int32 `json:"createTime,omitempty" `
 	UpdateTime int32 `json:"updateTime,omitempty"`
 }
@@ -28,14 +30,22 @@ Extendable, flexible plugin API: Database Resolver (Multiple Databases, Read/Wri
 Every feature comes with tests
 Developer Friendly
 */
-func NewDBEngine(dbs *srtting.DatabaseSettings)(*gorm.DB, error){
-	db,err := gorm.Open("mysql", "user:password@/dbname")
+func NewDBEngine() (*gorm.DB, error) {
+	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
+		"username",
+		"password",
+		"host",
+		"DBname",
+		"Charset",
+		true,
+	)))
 	if err != nil {
 		return nil, err
 	}
-	sqlDB, err = db.DB()
+	sqlDB, err := db.DB()
 
 	sqlDB.SetConnMaxLifetime(time.Minute * 3)
 	sqlDB.SetMaxOpenConns(10)
 	sqlDB.SetMaxIdleConns(10)
+	return db, nil
 }
