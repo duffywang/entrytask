@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package =".;proto";
+
+
+service FileService {
+    rpc Upload (UploadRequest) returns (UploadResponse);
+}
+
+message UploadRequest{
+    uint32 file_type = 1;
+    string file_name = 2;
+    bytes contents = 3;
+}
+
+message UploadResponse {
+    string file_url = 1;
+    string file_name = 2;
+}

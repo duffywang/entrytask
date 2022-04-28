@@ -1,6 +1,8 @@
 package http_service
 
-import "github.com/golang/protobuf/proto"
+import (
+	proto "github.com/duffywang/entrytask/proto"
+)
 
 //定义各种请求结构体
 //请求使用form格式
@@ -17,17 +19,17 @@ type RegisterUserReuqest struct {
 }
 
 type EditUserRequest struct {
-	SessionID  string `form:session_id`
+	SessionID  string `form:"session_id"`
 	NickName   string `form:"nickname" binding:"min=3,max=20"`
 	ProfilePic string `form:"profile_pic" binding:"max = 1024"`
 }
 
 type GetUserRequest struct {
-	SessionID string `form:session_id`
+	SessionID string `form:"session_id"`
 }
 
 type LoginResponse struct {
-	SessionID string `json:session_id`
+	SessionID string `json:"session_id"`
 }
 
 //返回值为json格式
@@ -43,25 +45,58 @@ type RegisterUserResponse struct {
 type EditUserResponse struct {
 }
 
-func (svc *Service) Login(request *LoginRequest) *LoginResponse {
-	svc.GetUserClient()
+func (svc *Service) Login(request *LoginRequest) (*LoginResponse, error) {
+	res, err := svc.GetUserClient().Login(svc.ctx, &proto.LoginRequest{
+		Username: request.UserName,
+		Password: request.PassWord,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResponse{SessionID: res.SessionId}, nil
 
 }
 
-func (svc *Service) GetUserInfo(request *GetUserRequest) *GetUserResponse {
-
+func (svc *Service) GetUserInfo(request *GetUserRequest) (*GetUserResponse, error) {
+	res, err := svc.GetUserClient().GetUser(svc.ctx, &proto.GetUserRequest{
+		SessionId: request.SessionID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &GetUserResponse{UserName: res.Username, NickName: res.Nickname, ProfilePic: res.ProdilePic}, nil
 }
 
-func (svc *Service) RegisterUser(request *RegisterUserReuqest) *RegisterUserResponse {
+func (svc *Service) RegisterUser(request *RegisterUserReuqest) (*RegisterUserResponse, error) {
+	//TODO:生成参数快捷键
+	_, err := svc.GetUserClient().RegisterUser(svc.ctx, &proto.RegisterUserReuqest{
+		Username: request.UserName,
+		Password: request.PassWord,
+		Nickname: request.NickName,
+	})
 
+	if err != nil {
+		return nil, err
+	}
+	return &RegisterUserResponse{}, nil
 }
 
-func (svc *Service) EditUser(request *EditUserRequest) *EditUserResponse {
-
+func (svc *Service) EditUser(request *EditUserRequest) (*EditUserResponse, error) {
+	_, err := svc.GetUserClient().EditUser(svc.ctx, &proto.EditUserRequest{
+		SessionId:  request.SessionID,
+		Nickname:   request.NickName,
+		ProfilePic: request.ProfilePic,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &EditUserResponse{}, nil
 }
+
 
 var userClient proto.UserServiceClient
 
+//方法名小写是私有的吗？
 func (svc *Service) GetUserClient() proto.UserServiceClient {
 	if userClient == nil {
 		userClient = proto.NewUserServiceClient(svc.client)

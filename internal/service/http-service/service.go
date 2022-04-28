@@ -11,13 +11,13 @@ import (
 type Service struct {
 	ctx context.Context
 	//全局唯一
-	dao *dao.Dao
+	dao    *dao.Dao
 	client *grpc.ClientConn
 }
 
 func NewService(ctx context.Context) Service {
 	service := Service{ctx: ctx}
 	service.dao = dao.New(global.DBEngine)
-	service.client = global.GRPCCLient
+	service.client = global.GRPCClient
 	return service
 }

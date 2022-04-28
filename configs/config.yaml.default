@@ -1,0 +1,16 @@
+Database:
+    DBType: mysql
+    Username: root
+    Password: 123456
+    Host: localhost:3300
+    DBName: entrytask_db
+    Charset: utf8mb4
+    ParseTime: True
+    MaxIdleConns: 10
+    MaxOpenConns: 30
+
+Redis:
+    Host: localhost:6379
+    DBIndex: 0
+
+Client:

@@ -1,11 +1,16 @@
 package models
 
 import (
+	"context"
 	"fmt"
 	"time"
 
+	"google.golang.org/grpc"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+
+	"github.com/duffywang/entrytask/pkg/setting"
+	"github.com/go-redis/redis/v8"
 )
 
 type CommonModel struct {
@@ -30,7 +35,7 @@ Extendable, flexible plugin API: Database Resolver (Multiple Databases, Read/Wri
 Every feature comes with tests
 Developer Friendly
 */
-func NewDBEngine() (*gorm.DB, error) {
+func NewDBEngine(databaseSetting *setting.DatabaseSetting) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
 		"username",
 		"password",
@@ -48,4 +53,23 @@ func NewDBEngine() (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(10)
 	sqlDB.SetMaxIdleConns(10)
 	return db, nil
+}
+
+func NewCacheClient(cacheSetting *setting.CacheSetting) (*redis.Client, error) {
+	rdb := redis.NewClient(&redis.Options{
+		Addr: cacheSetting.Host,
+		DB:   cacheSetting.DBIndex,
+	})
+	return rdb, nil
+}
+
+func NewRPCClient(clientSetting *setting.ClientSetting) (*grpc.ClientConn, error) {
+	// Background returns a non-nil, empty Context. It is never canceled, has no
+	// values, and has no deadline. It is typically used by the main function,
+	// initialization, and tests, and as the top-level Context for incoming
+	// requests.
+	ctx := context.Background()
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	return grpc.DialContext(ctx, clientSetting.RPCHost, opts...)
 }
