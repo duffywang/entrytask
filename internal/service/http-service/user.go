@@ -64,7 +64,7 @@ func (svc *Service) GetUserInfo(request *GetUserRequest) (*GetUserResponse, erro
 	if err != nil {
 		return nil, err
 	}
-	return &GetUserResponse{UserName: res.Username, NickName: res.Nickname, ProfilePic: res.ProdilePic}, nil
+	return &GetUserResponse{UserName: res.Username, NickName: res.Nickname, ProfilePic: res.ProfilePic}, nil
 }
 
 func (svc *Service) RegisterUser(request *RegisterUserReuqest) (*RegisterUserResponse, error) {

@@ -24,7 +24,7 @@ message RegisterUserReuqest{
     string username = 1;
     string password = 2;
     string nickname = 3;
-    string prodile_pic = 4;
+    string profile_pic = 4;
 }
 
 message EditUserRequest {
@@ -44,7 +44,7 @@ message LoginResponse {
 message GetUserResponse {
     string username = 1;
     string nickname = 2;
-    string prodile_pic = 3;
+    string profile_pic = 3;
     reserved 10;
 }
 

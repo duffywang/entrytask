@@ -15,8 +15,8 @@ import (
 
 type CommonModel struct {
 	ID         uint32 `json:"id"`
-	CreateTime uint32 `json:"createTime,omitempty" `
-	UpdateTime uint32 `json:"updateTime,omitempty"`
+	CreateTime uint32 `json:"create_time,omitempty" `
+	UpdateTime uint32 `json:"update_time,omitempty"`
 }
 
 /*
@@ -37,12 +37,12 @@ Developer Friendly
 */
 func NewDBEngine(databaseSetting *setting.DatabaseSetting) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
-		"username",
-		"password",
-		"host",
-		"DBname",
-		"Charset",
-		true,
+		databaseSetting.UserName,
+		databaseSetting.PassWord,
+		databaseSetting.Host,
+		databaseSetting.DBName,
+		databaseSetting.Charset,
+		databaseSetting.ParseTime,
 	)))
 	if err != nil {
 		return nil, err
