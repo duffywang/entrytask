@@ -2,7 +2,7 @@ Database:
     DBType: mysql
     Username: root
     Password: asdfgh
-    Host: localhost:3306
+    Host: 127.0.0.1:3306
     DBName: entrytask
     Charset: utf8mb4
     ParseTime: True
@@ -10,7 +10,7 @@ Database:
     MaxOpenConns: 30
 
 Redis:
-    Host: localhost:6379
+    Host: 127.0.0.1:6379
     DBIndex: 0
 
 Client:
@@ -19,6 +19,7 @@ Client:
 
 Server:
     RunMode: debug
+    Host: localhost
     HttpPort: 8001
     RPCPort: 8003
     ReadTimeout: 60

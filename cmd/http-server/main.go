@@ -1,11 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/duffywang/entrytask/global"
 	"github.com/duffywang/entrytask/internal/models"
@@ -24,7 +29,7 @@ func main() {
 
 	//服务器配置
 	s := &http.Server{
-		Addr:         global.ServerSetting.HttpPort,
+		Addr:         ":" + global.ServerSetting.HttpPort,
 		Handler:      r,
 		ReadTimeout:  global.ServerSetting.ReadTimeout,
 		WriteTimeout: global.ServerSetting.WriteTimeout,
@@ -32,6 +37,8 @@ func main() {
 
 	go func() {
 		//监听
+		log.Printf("Starting HTTP Server , Listening %s ... \n", s.Addr)
+		r.Run()
 		err := s.ListenAndServe()
 		if err != nil {
 			log.Fatalf("Server ListenAndServe Fail %v", err)
@@ -39,6 +46,18 @@ func main() {
 	}()
 
 	//TODO：服务器退出逻辑
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutting Down Server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+	defer cancel()
+	if err := s.Shutdown(ctx); err != nil {
+		log.Fatalf("Server Forced to Shutdown:%v", err)
+	}
+
+	log.Println("Server Existing")
 
 }
 
@@ -70,11 +89,22 @@ func init() {
 	if err != nil {
 		log.Fatalf("HTTP Set up RPC Client fail: %v", err)
 	}
-	fmt.Println("HTTP server Setup RPC Clieny success")
+	fmt.Println("HTTP server Setup RPC Client success")
 
 }
 
+func setupFlag() error {
+	//StringVar defines a string flag with specified name, default value, and usage string. The argument p points to a string variable in which to store the value of the flag.
+	flag.StringVar(&port, "port", "", "启动端口")
+	flag.StringVar(&mode, "mode", "", "启动模式")
+	flag.StringVar(&config, "config", "/Users/wangyufei/entrytask/configs", "配置文件路径")
+	// Parse parses the command-line flags from os.Args[1:]. Must be called after all flags are defined and before flags are accessed by the program.
+	flag.Parse()
+	return nil
+}
+
 func setupSetting() error {
+	log.Printf("%v", config)
 	s, err := setting.NewSetting(strings.Split(config, ",")...)
 	if err != nil {
 		return err
@@ -96,16 +126,6 @@ func setupSetting() error {
 		return err
 	}
 
-	return nil
-}
-
-func setupFlag() error {
-	//StringVar defines a string flag with specified name, default value, and usage string. The argument p points to a string variable in which to store the value of the flag.
-	flag.StringVar(&port, "port", "", "启动端口")
-	flag.StringVar(&mode, "mode", "", "启动模式")
-	flag.StringVar(&config, "config", "configs/", "配置文件路径")
-	// Parse parses the command-line flags from os.Args[1:]. Must be called after all flags are defined and before flags are accessed by the program.
-	flag.Parse()
 	return nil
 }
 

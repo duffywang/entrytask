@@ -8,13 +8,20 @@ import (
 
 func NewRouter() *gin.Engine {
 	r := gin.New()
+	ping := api.NewPing()
 	user := api.NewUser()
 	file := api.NewFile()
+
+	pingGroup := r.Group("api")
+	//TODO:Login(c *gin.Context) 没有带参数
+	pingGroup.GET("/ping", ping.Ping)
 
 	loginGroup := r.Group("api")
 	{
 		//注册和登录POST请求
+		
 		loginGroup.POST("/user/login", user.Login)
+		
 	}
 
 	registerGroup := r.Group("api")
@@ -27,13 +34,13 @@ func NewRouter() *gin.Engine {
 	sessionGroup.Use(middleware.SessionRequired)
 	{
 		sessionGroup.GET("/user/get", user.Get)
-		sessionGroup.GET("/user/edit", user.Edit)
+		sessionGroup.POST("/user/edit", user.Edit)
 	}
 
 	uploadGroup := r.Group("api")
 	uploadGroup.Use(middleware.LoginRequired)
 	{
-		uploadGroup.POST("user/upload", file.Upload)
+		uploadGroup.POST("/user/upload", file.Upload)
 	}
 
 	return r

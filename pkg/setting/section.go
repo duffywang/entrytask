@@ -3,6 +3,7 @@ package setting
 import "time"
 
 type ServerSetting struct {
+	Host string
 	HttpPort string
 	RPCPort string
 	ReadTimeout time.Duration

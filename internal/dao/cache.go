@@ -2,6 +2,7 @@ package dao
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -27,5 +28,8 @@ func (rc *RedisClient) Get(ctx context.Context, key string) (string, error) {
 
 func (rc *RedisClient) Set(ctx context.Context, key string, value any, expireTime time.Duration) error {
 	err := rc.redisClient.Set(ctx, key, value, expireTime).Err()
+	if err != nil {
+		fmt.Printf("Redis Set Fail: %v",err)
+	}
 	return err
 }

@@ -15,13 +15,13 @@ type RegisterUserReuqest struct {
 	UserName   string `form:"username" binding:"required,min=3,max=20"`
 	PassWord   string `form:"password" binding:"required,min=3,max=20"`
 	NickName   string `form:"nickname" binding:"required,min=3,max=20"`
-	ProfilePic string `form:"profile_pic" `
+	ProfilePic string `form:"profilepic" binding:"-"` //跳过校验，否则取不到profile_pic
 }
 
 type EditUserRequest struct {
 	SessionID  string `form:"session_id"`
 	NickName   string `form:"nickname" binding:"min=3,max=20"`
-	ProfilePic string `form:"profile_pic" binding:"max = 1024"`
+	ProfilePic string `form:"profilepic" binding:"-"`
 }
 
 type GetUserRequest struct {
@@ -92,7 +92,6 @@ func (svc *Service) EditUser(request *EditUserRequest) (*EditUserResponse, error
 	}
 	return &EditUserResponse{}, nil
 }
-
 
 var userClient proto.UserServiceClient
 

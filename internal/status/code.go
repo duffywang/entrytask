@@ -2,18 +2,20 @@ package status
 
 //业务自定义状态码
 var (
+	
+
 	//服务端异常
-	ServerError  = NewError(10000, "Server Error")
-	SessionError = NewError(10001, "Session Error")
+	ServerError  = NewError(100000, "Server Error")
+	SessionError = NewError(100001, "Session Error")
 
 	//客户端异常
-	InvalidParamsError = NewError(20000, "Invalid Params Error")
-	NotFoundError      = NewError(20001, "Not Found Error")
+	InvalidParamsError = NewError(200000, "Invalid Params Error")
+	NotFoundError      = NewError(200001, "Not Found Error")
 
 	//业务异常
-	UserLoginError    = NewError(30000, "User Login Error")
-	UserRegisterError = NewError(30001, "User Register Error")
-	UserGetError      = NewError(30002, "User Get Error")
-	UserEditError     = NewError(30003, "User Edit Error")
-	FileUploadError   = NewError(30004, "File Upload Error")
+	UserLoginError    = NewError(300000, "User Login Error")
+	UserRegisterError = NewError(300001, "User Register Error")
+	UserGetError      = NewError(300002, "User Get Error")
+	UserEditError     = NewError(300003, "User Edit Error")
+	FileUploadError   = NewError(300004, "File Upload Error")
 )

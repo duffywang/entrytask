@@ -13,7 +13,7 @@ func SessionRequired(c *gin.Context) {
 		res.ToErrorResponse(status.SessionError)
 		return
 	}
-	c.Set("sessionId", sessionID)
+	c.Set("session_id", sessionID)
 	c.Next()
 }
 
@@ -23,8 +23,8 @@ func LoginRequired(c *gin.Context) {
 
 	//通过sessionID获取用户信息
 	//svc := http_service.NewService(c)
-	//svc.GetAuth(sessionId) 获取用户信息，使用redis存储
-	username := "ddd"
+	//svc.GetAuth(sessionId) //获取用户信息，使用redis存储
+	username := "test"
 
 	if err != nil {
 		res.ToErrorResponse(status.UserLoginError)

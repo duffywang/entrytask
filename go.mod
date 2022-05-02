@@ -6,6 +6,7 @@ go 1.18
 require github.com/go-sql-driver/mysql v1.6.0 // indirect
 
 require (
+	github.com/agiledragon/gomonkey/v2 v2.2.0
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0

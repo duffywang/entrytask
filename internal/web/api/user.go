@@ -1,6 +1,8 @@
 package api
 
 import (
+	"fmt"
+
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/internal/status"
 	"github.com/duffywang/entrytask/pkg/response"
@@ -40,8 +42,9 @@ func (u User) Get(c *gin.Context) {
 	resp := response.NewResponse(c)
 	param := http_service.GetUserRequest{}
 	//登录后具有sessionID信息，
-	sessionID, _ := c.Get("session_ID")
-	param.SessionID = sessionID.(string)
+	sessionID, _ := c.Get("session_id")
+	//sessionID.(string) 
+	param.SessionID = fmt.Sprintf("%v", sessionID)
 
 	svc := http_service.NewService(c.Request.Context())
 	//通过sessionID查询用户信息
@@ -89,11 +92,12 @@ func (u User) Edit(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	//登录后具有sessionID信息，请求中带有session_id，通过sessionID查询用户信息
 	sessionID, _ := c.Get("session_id")
-	param.SessionID = sessionID.(string)
+	//TODO：为什么要这样？ 
+	param.SessionID = fmt.Sprintf("%v", sessionID)
 	editUserResponse, err := svc.EditUser(&param)
 	if err != nil {
 		//日志
-		resp.ToErrorResponse(status.UserRegisterError)
+		resp.ToErrorResponse(status.UserEditError)
 		return
 	}
 

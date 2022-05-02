@@ -18,6 +18,13 @@ type CommonModel struct {
 	CreateTime uint32 `json:"create_time,omitempty" `
 	UpdateTime uint32 `json:"update_time,omitempty"`
 }
+// type UserModel struct {
+// 	UserName   string `json:"username,omitempty"`
+// 	NickName   string `json:"nickname"`
+// 	PassWord   string `json:"password,omitempty"`
+// 	ProfilePic string `json:"profile_pic"`
+// 	Status     uint8  `json:"status"`
+// }
 
 /*
 Full-Featured ORM

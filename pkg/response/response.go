@@ -29,5 +29,5 @@ func (r *Response) ToErrorResponse(err *status.Error) {
 	if len(details) > 0 {
 		response["data"] = details
 	}
-	r.Ctx.JSON(err.Code, response)
+	r.Ctx.JSON(err.GetStatusCode(), response)
 }

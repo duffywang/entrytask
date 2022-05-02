@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/duffywang/entrytask/global"
 	"github.com/duffywang/entrytask/internal/dao"
-	"github.com/duffywang/entrytask/pkg/utils/hashutils"
 	"github.com/duffywang/entrytask/proto"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 //rpc服务端逻辑，提供服务
@@ -40,43 +41,45 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 		return nil, err
 	}
 	//2.用户密码是否正确
-	pwd := hashutils.Hash(request.Password)
-	if u.PassWord != pwd {
+	//pwd := hashutils.Hash(request.Password)
+	if u.Password != request.Password {
 		//2.1 密码错误
 		return nil, errors.New("User Login fail : pwd incorrect")
 	} else if u.Status != 0 {
 		//2.2 用户被删除
 		return nil, errors.New("User Login fail : user status disabled")
 	}
+	fmt.Println("Login Password Valid Correct")
 
 	//3.session 存储
 	//3.1 使用uuid生成sessionID
 	sessionID := uuid.NewV4()
 	//3.2 存储sessionID以及对应的username
 	getUserResponse := &proto.GetUserResponse{
-		Username:   u.UserName,
-		Nickname:   u.NickName,
+		Username:   u.Username,
+		Nickname:   u.Nickname,
 		ProfilePic: u.ProfilePic,
 	}
 
-	_ = svc.cache.Set(svc.ctx, "session_id"+sessionID.String(), u.UserName, 0)
-	_ = svc.UpdateUserProfile(u.UserName, getUserResponse)
+	_ = svc.cache.Set(svc.ctx, "session_id:"+sessionID.String(), u.Username, time.Hour)
+	_ = svc.UpdateUserProfile(u.Username, getUserResponse)
 
 	return &proto.LoginResponse{SessionId: sessionID.String()}, nil
 
 }
 
-func (svc UserService) Register(ctx context.Context, request *proto.RegisterUserReuqest) (*proto.RegisterUserResponse, error) {
-	u, err := svc.dao.GetUserInfo(request.Username)
-	if err != nil {
-		return nil, err
+func (svc UserService) RegisterUser(ctx context.Context, request *proto.RegisterUserReuqest) (*proto.RegisterUserResponse, error) {
+	//1.判断username是否已存在
+	_, err := svc.dao.GetUserInfo(request.Username)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		//说明已存在
+		return nil, errors.New(" RegisterUser Fail : Username exist")
 	}
-	if u != nil {
-		return nil, errors.New("User Register fail : username exist")
-	}
-	pwd := hashutils.Hash(request.Password)
+	//数据库中不存在要注册的username，则继续执行注册逻辑
+
+	//pwd := hashutils.Hash(request.Password)
 	//TODO:过期时间设为0是什么意思
-	u, err = svc.dao.CreateUser(request.Username, request.Nickname, pwd, request.ProfilePic, 0)
+	_, err = svc.dao.CreateUser(request.Username, request.Nickname, request.Password, request.ProfilePic, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +88,7 @@ func (svc UserService) Register(ctx context.Context, request *proto.RegisterUser
 
 }
 
-func (svc UserService) Edit(ctx context.Context, request *proto.EditUserRequest) (*proto.EditUserResponse, error) {
+func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequest) (*proto.EditUserResponse, error) {
 
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
@@ -110,8 +113,8 @@ func (svc UserService) Edit(ctx context.Context, request *proto.EditUserRequest)
 
 	//5.更新缓存
 	getUserResponse := &proto.GetUserResponse{
-		Username:   u.UserName,
-		Nickname:   u.NickName,
+		Username:   u.Username,
+		Nickname:   u.Nickname,
 		ProfilePic: u.ProfilePic,
 	}
 	err = svc.UpdateUserProfile(username, getUserResponse)
@@ -122,7 +125,7 @@ func (svc UserService) Edit(ctx context.Context, request *proto.EditUserRequest)
 	return &proto.EditUserResponse{}, nil
 }
 
-func (svc UserService) Get(ctx context.Context, request *proto.GetUserRequest) (*proto.GetUserResponse, error) {
+func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserRequest) (*proto.GetUserResponse, error) {
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
 	if err != nil {

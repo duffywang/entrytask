@@ -1,32 +1,27 @@
 package models
 
 import (
+	"fmt"
+
 	"gorm.io/gorm"
 )
 
 //用户
 type User struct {
-	*CommonModel
-	UserName   string `json:"userName"`
-	NickName   string `json:"nickName"`
-	PassWord   string `json:"passWord"`
+	ID         uint32 `json:"id"`
+	CreateTime uint32 `json:"create_time,omitempty" `
+	UpdateTime uint32 `json:"update_time,omitempty"`
+	Username   string `json:"username"`
+	Nickname   string `json:"nickname"`
+	Password   string `json:"password"`
 	ProfilePic string `json:"profile_pic"`
 	Status     uint8  `json:"status"`
 }
 
 
 
-//工厂模式生成User
-// func NewUser(username string, nickname string, picture string)User {
-// 	return User{
-// 		UserName : userName,
-// 		NickName : nickName,
-// 		ProfilePic : picture,
-// 	}
-// }
-
 func (u User) CreateUserInfo(db *gorm.DB) (*User, error) {
-	err := db.Create(&u).Error
+	err := db.Table("user_table").Create(&u).Error
 	if err != nil {
 		return nil, err
 	}
@@ -34,19 +29,20 @@ func (u User) CreateUserInfo(db *gorm.DB) (*User, error) {
 }
 
 func (u User) UpdateUserInfo(db *gorm.DB, values any) error {
-	err := db.Model(&u).Updates(values).Where("id = ? AND status = ?", u.ID, 0).Error
+	err := db.Table("user_table").Model(&u).Updates(values).Where("id = ? AND status = ?", u.ID, 0).Error
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (u User) GetUserInfoByName(db *gorm.DB) (*User, error) {
+func (u User) GetUserInfoByName(db *gorm.DB) (User, error) {
 	var user User
-	db = db.Where("name = ?", u.UserName)
-	err := db.First(&user).Error
+	db = db.Table("user_table").Where("username = ?", u.Username)
+	err := db.Table("user_table").First(&user).Error
+	fmt.Printf("Login.GetUserInfo.GetUserInfoByName User is : %+v\n", user)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
-	return &user, nil
+	return user, nil
 }

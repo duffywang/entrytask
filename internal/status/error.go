@@ -1,6 +1,9 @@
 package status
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+)
 
 //定义异常结构体，封装异常
 
@@ -34,3 +37,16 @@ func (e *Error) GetData() []string {
 	return e.Data
 }
 
+func (e *Error) GetStatusCode() int {
+	switch c := e.GetCode(); {
+	case c == ServerError.GetCode():
+		return http.StatusInternalServerError
+	case c == InvalidParamsError.GetCode():
+		return http.StatusBadRequest
+	case c == NotFoundError.GetCode():
+		return http.StatusNotFound
+	case c >= 300000:
+		return http.StatusBadGateway
+	}
+	return http.StatusInternalServerError
+}

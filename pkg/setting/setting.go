@@ -1,6 +1,8 @@
 package setting
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 /*
 Viper
@@ -28,6 +30,7 @@ func NewSetting(configs ...string) (*Setting, error) {
 			vp.AddConfigPath(config)
 		}
 	}
+	
 	err := vp.ReadInConfig()
 	if err != nil {
 		return nil, err

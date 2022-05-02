@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/duffywang/entrytask/internal/models"
@@ -9,15 +10,14 @@ import (
 //返回models.User 指针
 func (d *Dao) CreateUser(userName, nickName, passWord, profilePic string, status uint8) (*models.User, error) {
 	createUser := models.User{
-		UserName:   userName,
-		PassWord:   passWord,
-		NickName:   nickName,
+		Username:   userName,
+		Password:   passWord,
+		Nickname:   nickName,
 		ProfilePic: profilePic,
 		Status:     status,
-		CommonModel: &models.CommonModel{
-			CreateTime: uint32(time.Now().Unix()),
-			UpdateTime: uint32(time.Now().Unix()),
-		},
+
+		CreateTime: uint32(time.Now().Unix()),
+		UpdateTime: uint32(time.Now().Unix()),
 	}
 
 	user, err := createUser.CreateUserInfo(d.engine)
@@ -30,9 +30,7 @@ func (d *Dao) CreateUser(userName, nickName, passWord, profilePic string, status
 func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
 	//通过id查询到用户
 	updateUser := models.User{
-		CommonModel: &models.CommonModel{
-			ID: id,
-		},
+		ID: id,
 	}
 
 	values := map[string]any{
@@ -51,11 +49,12 @@ func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
 }
 
 //TODO:没有返回指针
-func (d *Dao) GetUserInfo(userName string) (*models.User, error) {
-	queryUser := models.User{UserName: userName}
+func (d *Dao) GetUserInfo(userName string) (models.User, error) {
+	queryUser := models.User{Username: userName}
 	user, err := queryUser.GetUserInfoByName(d.engine)
 	if err != nil {
-		return nil, err
+		fmt.Printf("Login.GetUserInfo.GetUserInfoByName Fail: %v \n", err)
+		return models.User{}, err
 	}
 	return user, nil
 }

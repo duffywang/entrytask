@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net"
 	"strings"
 
 	"github.com/duffywang/entrytask/global"
@@ -22,18 +23,6 @@ var (
 	mode   string
 	config string
 )
-
-func main() {
-
-	s := grpc.NewServer(grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
-		middleware.Recovery,
-	)))
-	ctx := context.Background()
-	//作为服务方注册图片上传服务和用户服务
-	proto.RegisterFileServiceServer(s, grpc_service.NewFileService(ctx))
-	proto.RegisterUserServiceServer(s, grpc_service.NewUserService(ctx))
-	fmt.Println("rpc-server success")
-}
 
 func init() {
 	err := setupFlag()
@@ -95,7 +84,7 @@ func setupFlag() error {
 	//StringVar defines a string flag with specified name, default value, and usage string. The argument p points to a string variable in which to store the value of the flag.
 	flag.StringVar(&port, "port", "", "启动端口")
 	flag.StringVar(&mode, "mode", "", "启动模式")
-	flag.StringVar(&config, "config", "configs/", "配置文件路径")
+	flag.StringVar(&config, "config", "/Users/wangyufei/entrytask/configs", "配置文件路径")
 	// Parse parses the command-line flags from os.Args[1:]. Must be called after all flags are defined and before flags are accessed by the program.
 	flag.Parse()
 	return nil
@@ -133,4 +122,26 @@ func setupRPCClient() error {
 	log.Println("Set up RPC Client Success")
 	return nil
 
+}
+
+func main() {
+
+	s := grpc.NewServer(grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
+		middleware.Recovery,
+	)))
+	ctx := context.Background()
+	//作为服务方注册图片上传服务和用户服务
+	proto.RegisterFileServiceServer(s, grpc_service.NewFileService(ctx))
+	proto.RegisterUserServiceServer(s, grpc_service.NewUserService(ctx))
+	fmt.Println("Rpc-Server Main Func Success")
+
+	lis, err := net.Listen("tcp", ":"+global.ServerSetting.RPCPort)
+	if err != nil {
+		log.Fatalf("GRPC Listen Fail: %v", err)
+	}
+	err = s.Serve(lis)
+	if err != nil {
+		log.Fatalf("GRPC Serve Fail: %v", err)
+
+	}
 }
