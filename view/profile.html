@@ -1,0 +1,15 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>profile</title>
+    </head>
+
+    <body>
+        <h1>欢迎用户: {{ .Username }}</h1>
+        <h2>你的昵称为: {{ .Nickname }}</h2>
+
+        <form action="/api/file/upload" method="post" enctype="multipart/form-data">
+            <input type="file" name="file">
+            <input type="submit" value="上传图片">
+        </form>
+    </body>

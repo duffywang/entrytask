@@ -39,6 +39,9 @@ message GetUserRequest {
 
 message LoginResponse {
     string session_id = 1;
+    string username = 2;
+    string nickname = 3;
+    string profile_pic = 4;
 }
 
 message GetUserResponse {

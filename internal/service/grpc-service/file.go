@@ -2,6 +2,7 @@ package grpc_service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/duffywang/entrytask/global"
 	"github.com/duffywang/entrytask/internal/dao"
@@ -19,14 +20,33 @@ type FileService struct {
 func NewFileService(ctx context.Context) FileService {
 	return FileService{
 		ctx:   ctx,
-		dao:   dao.New(global.DBEngine),
+		dao:   dao.NewDBClient(global.DBEngine),
 		cache: dao.NewRedisClient(global.RedisClient),
 	}
 }
 
 func (svc FileService) Upload(ctx context.Context, request *proto.UploadRequest) (*proto.UploadResponse, error) {
 	fileName := fileutils.GetFileName(request.FileName)
-	fileURL := ""
-	//
+	savePath := fileutils.GetSavePath()
+	dest := savePath + "/" + fileName
+
+	if fileutils.CheckSavePathValid(savePath) {
+		//存储路径不存在，创建一个
+		err := fileutils.CreateSavePath(savePath)
+		if err != nil {
+			return nil, errors.New("svc.Upload CreateSavePath Failed")
+		}
+	}
+
+	if fileutils.CheckPermisson(savePath) {
+		return nil, errors.New("svc.Upload CheckPermisson Failed")
+	}
+
+	err := fileutils.SaveFileByte(&request.Contents, dest)
+	if err != nil {
+		return nil, errors.New("svc.Upload SaveFileByte Failed")
+	}
+
+	fileURL := "http://localhost:8080/static/" + fileName
 	return &proto.UploadResponse{FileUrl: fileURL, FileName: fileName}, nil
 }

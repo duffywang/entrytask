@@ -27,30 +27,30 @@ var (
 func init() {
 	err := setupFlag()
 	if err != nil {
-		log.Fatalf("GRPC Set up Flag fail: %v", err)
+		log.Fatalf("GRPC Set up Flag fail: %v\n", err)
 	}
 	fmt.Println("GRPC server Setup Flag success")
 
 	err = setupSetting()
 	if err != nil {
 		//Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
-		log.Fatalf("GRPC Set up Setting fail: %v", err)
+		log.Fatalf("GRPC Set up Setting fail: %v\n", err)
 	}
 	fmt.Println("GRPC server Setup Setting success")
 
 	err = setupDBEngine()
 	if err != nil {
-		log.Fatalf("GRPC Set up DBEngine fail %v", err)
+		log.Fatalf("GRPC Set up DBEngine fail %v\n", err)
 	}
 	fmt.Println("GRPC server Setup DB success")
 	err = setupCacheClient()
 	if err != nil {
-		log.Fatalf("GRPC Set up Cache Client fail: %v", err)
+		log.Fatalf("GRPC Set up Cache Client fail: %v\n", err)
 	}
 	fmt.Println("GRPC server Setup Cache success")
 	err = setupRPCClient()
 	if err != nil {
-		log.Fatalf("GRPC Set up RPC Client fail: %v", err)
+		log.Fatalf("GRPC Set up RPC Client fail: %v\n", err)
 	}
 	fmt.Println("GRPC server Setup RPC Clieny success")
 }
@@ -125,7 +125,6 @@ func setupRPCClient() error {
 }
 
 func main() {
-
 	s := grpc.NewServer(grpc.UnaryInterceptor(grpcmiddleware.ChainUnaryServer(
 		middleware.Recovery,
 	)))
@@ -142,6 +141,5 @@ func main() {
 	err = s.Serve(lis)
 	if err != nil {
 		log.Fatalf("GRPC Serve Fail: %v", err)
-
 	}
 }

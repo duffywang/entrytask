@@ -2,7 +2,6 @@ package status
 
 //业务自定义状态码
 var (
-	
 
 	//服务端异常
 	ServerError  = NewError(100000, "Server Error")
@@ -18,4 +17,5 @@ var (
 	UserGetError      = NewError(300002, "User Get Error")
 	UserEditError     = NewError(300003, "User Edit Error")
 	FileUploadError   = NewError(300004, "File Upload Error")
+	FileFormError     = NewError(300005, "File Form Error")
 )

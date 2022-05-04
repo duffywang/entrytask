@@ -54,10 +54,13 @@ func NewDBEngine(databaseSetting *setting.DatabaseSetting) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	sqlDB, err := db.DB()
+	sqlDB, _ := db.DB()
 
+	//连接可复用的最大时间
 	sqlDB.SetConnMaxLifetime(time.Minute * 3)
-	sqlDB.SetMaxOpenConns(10)
+	//设置打开数据库连接的最大数量
+	sqlDB.SetMaxOpenConns(20)
+	//设置连接池中空闲的最大数量
 	sqlDB.SetMaxIdleConns(10)
 	return db, nil
 }

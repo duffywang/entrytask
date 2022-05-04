@@ -17,7 +17,7 @@ func NewResponse(ctx *gin.Context) *Response {
 	return &Response{Ctx: ctx}
 }
 
-//提示信息、数据，正常请求状态码一定为业务自定义0 ，http.StatusOK = 200
+//提示信息、数据，正常请求状态码一定为业务自定义0 ，http.StatusOK = 200，r.Ctx.JSON(http.StatusOK, response)封装
 func (r *Response) ToNormalResponse(msg string, data any) {
 	response := gin.H{"code": 0, "msg": "success", "data": data}
 	r.Ctx.JSON(http.StatusOK, response)

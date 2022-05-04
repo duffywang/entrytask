@@ -34,12 +34,12 @@ func main() {
 		ReadTimeout:  global.ServerSetting.ReadTimeout,
 		WriteTimeout: global.ServerSetting.WriteTimeout,
 	}
-
+	
 	go func() {
 		//监听
 		log.Printf("Starting HTTP Server , Listening %s ... \n", s.Addr)
-		r.Run()
-		err := s.ListenAndServe()
+		//r.Run(":9090")可以修改端口
+		err := r.Run()
 		if err != nil {
 			log.Fatalf("Server ListenAndServe Fail %v", err)
 		}
@@ -64,30 +64,29 @@ func main() {
 func init() {
 	err := setupFlag()
 	if err != nil {
-		log.Fatalf("HTTP Set up Flag fail: %v", err)
+		log.Fatalf("HTTP Set up Flag fail: %v\n", err)
 	}
 	fmt.Println("HTTP server Setup Flag success")
 
 	err = setupSetting()
 	if err != nil {
-		//Fatalf is equivalent to Printf() followed by a call to os.Exit(1).
-		log.Fatalf("HTTP Set up Setting fail: %v", err)
+		log.Fatalf("HTTP Set up Setting fail: %v\n", err)
 	}
 	fmt.Println("HTTP server Setup Setting success")
 
 	err = setupDBEngine()
 	if err != nil {
-		log.Fatalf("HTTP Set up DBEngine fail %v", err)
+		log.Fatalf("HTTP Set up DBEngine fail %v\n", err)
 	}
 	fmt.Println("HTTP server Setup DB success")
 	err = setupCacheClient()
 	if err != nil {
-		log.Fatalf("HTTP Set up Cache Client fail: %v", err)
+		log.Fatalf("HTTP Set up Cache Client fail: %v\n", err)
 	}
 	fmt.Println("HTTP server Setup Cache success")
 	err = setupRPCClient()
 	if err != nil {
-		log.Fatalf("HTTP Set up RPC Client fail: %v", err)
+		log.Fatalf("HTTP Set up RPC Client fail: %v\n", err)
 	}
 	fmt.Println("HTTP server Setup RPC Client success")
 

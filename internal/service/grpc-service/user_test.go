@@ -21,9 +21,9 @@ func TestUserService_Login(t *testing.T) {
 	svc := NewUserService(context.Background())
 
 	// Mock stuffs
-	username := "test_username"
-	nickname := "test_nickname"
-	password := "test_password"
+	username := "test4"
+	nickname := "test"
+	password := "1234567"
 
 	// Input
 	request := &proto.LoginRequest{

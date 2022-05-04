@@ -20,7 +20,7 @@ Client:
 Server:
     RunMode: debug
     Host: localhost
-    HttpPort: 8001
+    HttpPort: 8080
     RPCPort: 8003
     ReadTimeout: 60
     WriteTimeout: 60    

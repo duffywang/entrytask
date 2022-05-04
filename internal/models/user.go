@@ -18,9 +18,22 @@ type User struct {
 	Status     uint8  `json:"status"`
 }
 
+/*
+type User struct {
+	gorm.Model
+	Username string `gorm:"unique;not null"`
+	Nickname string `gorm:"type:varchar(50)"`
+	Password string `gorm:"size:20;type:varchar(50);not null"`
+	ProfilePic string `gorm:"column:profile_pic"`
+	Status uint8 `gorm:"default:0;not null"`
+	Ignore string `gorm:"-"`
+}
+*/
+
 
 
 func (u User) CreateUserInfo(db *gorm.DB) (*User, error) {
+	//Create(&u).ID Create(&u).RowsAffected
 	err := db.Table("user_table").Create(&u).Error
 	if err != nil {
 		return nil, err
@@ -36,10 +49,17 @@ func (u User) UpdateUserInfo(db *gorm.DB, values any) error {
 	return nil
 }
 
+//实现TableName接口
+func (u User) TableName() string {
+	return "user_table"
+}
+
 func (u User) GetUserInfoByName(db *gorm.DB) (User, error) {
 	var user User
+	//临时使用"user_table"
 	db = db.Table("user_table").Where("username = ?", u.Username)
 	err := db.Table("user_table").First(&user).Error
+	//db = db.Table("user_table").Find(&user, "username = ?", u.Username)
 	fmt.Printf("Login.GetUserInfo.GetUserInfoByName User is : %+v\n", user)
 	if err != nil {
 		return user, err

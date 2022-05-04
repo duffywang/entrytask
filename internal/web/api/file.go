@@ -17,7 +17,14 @@ func NewFile() File {
 }
 func (f File) Upload(c *gin.Context) {
 	resp := response.NewResponse(c)
+	//TODO : file := c.FormFile("file")
 	file, fileHeader, err := c.Request.FormFile("file")
+	if err != nil {
+		resp.ToErrorResponse(status.FileFormError)
+		return
+	}
+
+	//思考需要type嘛
 	fileType, _ := strconv.Atoi(c.PostForm("type"))
 	//检验file、fileHeader、fileType是否合法
 
@@ -26,7 +33,6 @@ func (f File) Upload(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	uploadResponse, err := svc.Upload(&param)
 	if err != nil {
-		//日志
 		resp.ToErrorResponse(status.FileUploadError)
 		return
 	}

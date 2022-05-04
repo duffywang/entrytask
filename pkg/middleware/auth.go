@@ -1,6 +1,11 @@
 package middleware
 
 import (
+	"log"
+	"strings"
+	"time"
+
+	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/internal/status"
 	"github.com/duffywang/entrytask/pkg/response"
 	"github.com/gin-gonic/gin"
@@ -19,13 +24,10 @@ func SessionRequired(c *gin.Context) {
 
 func LoginRequired(c *gin.Context) {
 	res := response.NewResponse(c)
-	_, err := c.Cookie("session_id")
+	sessionID, err := c.Cookie("session_id")
 
-	//通过sessionID获取用户信息
-	//svc := http_service.NewService(c)
-	//svc.GetAuth(sessionId) //获取用户信息，使用redis存储
-	username := "test"
-
+	svc := http_service.NewService(c.Request.Context())
+	username, err := svc.AuthUser(sessionID)
 	if err != nil {
 		res.ToErrorResponse(status.UserLoginError)
 		return
@@ -33,4 +35,15 @@ func LoginRequired(c *gin.Context) {
 	c.Set("username", username)
 	c.Next()
 
+}
+
+func TimeMonitor(c *gin.Context) {
+	if strings.HasSuffix(c.Request.URL.String(),"js") {
+		return
+	}
+	start := time.Now()
+	c.Next()
+	cost := time.Since(start)
+	log.Printf("%v\n",c.Request)
+	log.Printf("Process Cost Time : %v\n", cost)
 }
