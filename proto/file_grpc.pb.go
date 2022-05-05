@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
-	Upload(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error)
+	Upload(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadReply, error)
 }
 
 type fileServiceClient struct {
@@ -33,8 +33,8 @@ func NewFileServiceClient(cc grpc.ClientConnInterface) FileServiceClient {
 	return &fileServiceClient{cc}
 }
 
-func (c *fileServiceClient) Upload(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error) {
-	out := new(UploadResponse)
+func (c *fileServiceClient) Upload(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadReply, error) {
+	out := new(UploadReply)
 	err := c.cc.Invoke(ctx, "/proto.FileService/Upload", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (c *fileServiceClient) Upload(ctx context.Context, in *UploadRequest, opts 
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility
 type FileServiceServer interface {
-	Upload(context.Context, *UploadRequest) (*UploadResponse, error)
+	Upload(context.Context, *UploadRequest) (*UploadReply, error)
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -54,7 +54,7 @@ type FileServiceServer interface {
 type UnimplementedFileServiceServer struct {
 }
 
-func (UnimplementedFileServiceServer) Upload(context.Context, *UploadRequest) (*UploadResponse, error) {
+func (UnimplementedFileServiceServer) Upload(context.Context, *UploadRequest) (*UploadReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Upload not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}

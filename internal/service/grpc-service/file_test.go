@@ -25,7 +25,7 @@ func TestFileService_Upload(t *testing.T) {
 		name    string
 		fields  fields
 		args    args
-		want    *proto.UploadResponse
+		want    *proto.UploadReply
 		wantErr bool
 	}{
 		// TODO: Add test cases.

@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/duffywang/entrytask/internal/web/api"
@@ -10,16 +9,10 @@ import (
 )
 
 func NewRouter() *gin.Engine {
-	defer func() {
-		err := recover()
-		if err != nil {
-			fmt.Println("start newRouter err is:", err)
-		}
-	}()
 
 	//gin.Default 默认使用了Logger 和 Recovery中间件，Logger将日志写入gin.DefaultWriter,Recovery中间件会recover任何panic,返回500状态码
 	r := gin.Default()
-	r.SetTrustedProxies([]string{"192.168.31.115"})
+	
 	ping := api.NewPing()
 	user := api.NewUser()
 	file := api.NewFile()
@@ -43,6 +36,9 @@ func NewRouter() *gin.Engine {
 	}
 	registerGroup := r.Group("api")
 	{
+		registerGroup.GET("/register", func(ctx *gin.Context) {
+			ctx.HTML(http.StatusOK, "register.html", nil)
+		})
 		registerGroup.POST("/user/register", user.Register)
 	}
 

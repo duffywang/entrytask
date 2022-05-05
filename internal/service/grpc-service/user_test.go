@@ -302,7 +302,7 @@ func TestUserService_Get(t *testing.T) {
 	}
 
 	t.Run("normal getUser from cache", func(t *testing.T) {
-		want := &proto.GetUserResponse{
+		want := &proto.GetUserReply{
 			Username:   username,
 			Nickname:   nickname,
 			ProfilePic: profilePic,
@@ -329,7 +329,7 @@ func TestUserService_Get(t *testing.T) {
 	})
 
 	t.Run("normal getUser from db", func(t *testing.T) {
-		want := &proto.GetUserResponse{
+		want := &proto.GetUserReply{
 			Username:   username,
 			Nickname:   nickname,
 			ProfilePic: profilePic,

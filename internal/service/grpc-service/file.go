@@ -25,7 +25,7 @@ func NewFileService(ctx context.Context) FileService {
 	}
 }
 
-func (svc FileService) Upload(ctx context.Context, request *proto.UploadRequest) (*proto.UploadResponse, error) {
+func (svc FileService) Upload(ctx context.Context, request *proto.UploadRequest) (*proto.UploadReply, error) {
 	fileName := fileutils.GetFileName(request.FileName)
 	savePath := fileutils.GetSavePath()
 	dest := savePath + "/" + fileName
@@ -48,5 +48,5 @@ func (svc FileService) Upload(ctx context.Context, request *proto.UploadRequest)
 	}
 
 	fileURL := "http://localhost:8080/static/" + fileName
-	return &proto.UploadResponse{FileUrl: fileURL, FileName: fileName}, nil
+	return &proto.UploadReply{FileUrl: fileURL, FileName: fileName}, nil
 }

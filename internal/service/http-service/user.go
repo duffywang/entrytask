@@ -16,8 +16,8 @@ type LoginRequest struct {
 type RegisterUserReuqest struct {
 	Username   string `form:"username" binding:"required,min=3,max=20"`
 	Password   string `form:"password" binding:"required,min=3,max=20"`
-	Nickname   string `form:"nickname" binding:"required,min=3,max=20"`
-	ProfilePic string `form:"profilepic" binding:"-"` //跳过校验，否则取不到profile_pic
+	Nickname   string `form:"nickname" binding:"-"`
+	ProfilePic string `form:"profilepic" binding:"-"` 
 }
 
 type EditUserRequest struct {

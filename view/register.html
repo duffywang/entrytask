@@ -1,0 +1,24 @@
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>注册页面</title>
+    </head>
+
+    <body>
+        <h1>请注册</h1>
+
+        <form action="/api/user/register" method="post" novalidate autocomplete="off">
+            <div>
+                <label for="username">用户名：</label>
+                <input type="text" name="username" id="username" style="width: 150px;height: 20px;border: 1px solid;">
+            </div>
+            <div>
+                <label for="password">密 码：</label>
+                <input type="password" name="password" id="password" style="width: 150px;height: 20px;border: 1px solid;">
+            </div>
+            <div>
+                <input type="submit" value="注册" >
+            </div>
+        </form>
+
+    </body>

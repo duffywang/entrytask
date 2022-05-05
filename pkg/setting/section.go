@@ -6,11 +6,12 @@ type ServerSetting struct {
 	Host string
 	HttpPort string
 	RPCPort string
+	Mode string
 	ReadTimeout time.Duration
 	WriteTimeout time.Duration
 }
 
-type DatabaseSetting struct {
+type DBSetting struct {
 	DBType string
 	UserName string
 	PassWord string

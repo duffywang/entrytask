@@ -22,10 +22,10 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UserServiceClient interface {
-	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
-	RegisterUser(ctx context.Context, in *RegisterUserReuqest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
-	EditUser(ctx context.Context, in *EditUserRequest, opts ...grpc.CallOption) (*EditUserResponse, error)
-	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error)
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error)
+	RegisterUser(ctx context.Context, in *RegisterUserReuqest, opts ...grpc.CallOption) (*RegisterUserReply, error)
+	EditUser(ctx context.Context, in *EditUserRequest, opts ...grpc.CallOption) (*EditUserReply, error)
+	GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error)
 }
 
 type userServiceClient struct {
@@ -36,8 +36,8 @@ func NewUserServiceClient(cc grpc.ClientConnInterface) UserServiceClient {
 	return &userServiceClient{cc}
 }
 
-func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
-	out := new(LoginResponse)
+func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginReply, error) {
+	out := new(LoginReply)
 	err := c.cc.Invoke(ctx, "/proto.UserService/Login", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -45,8 +45,8 @@ func (c *userServiceClient) Login(ctx context.Context, in *LoginRequest, opts ..
 	return out, nil
 }
 
-func (c *userServiceClient) RegisterUser(ctx context.Context, in *RegisterUserReuqest, opts ...grpc.CallOption) (*RegisterUserResponse, error) {
-	out := new(RegisterUserResponse)
+func (c *userServiceClient) RegisterUser(ctx context.Context, in *RegisterUserReuqest, opts ...grpc.CallOption) (*RegisterUserReply, error) {
+	out := new(RegisterUserReply)
 	err := c.cc.Invoke(ctx, "/proto.UserService/RegisterUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -54,8 +54,8 @@ func (c *userServiceClient) RegisterUser(ctx context.Context, in *RegisterUserRe
 	return out, nil
 }
 
-func (c *userServiceClient) EditUser(ctx context.Context, in *EditUserRequest, opts ...grpc.CallOption) (*EditUserResponse, error) {
-	out := new(EditUserResponse)
+func (c *userServiceClient) EditUser(ctx context.Context, in *EditUserRequest, opts ...grpc.CallOption) (*EditUserReply, error) {
+	out := new(EditUserReply)
 	err := c.cc.Invoke(ctx, "/proto.UserService/EditUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +63,8 @@ func (c *userServiceClient) EditUser(ctx context.Context, in *EditUserRequest, o
 	return out, nil
 }
 
-func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserResponse, error) {
-	out := new(GetUserResponse)
+func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opts ...grpc.CallOption) (*GetUserReply, error) {
+	out := new(GetUserReply)
 	err := c.cc.Invoke(ctx, "/proto.UserService/GetUser", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -76,10 +76,10 @@ func (c *userServiceClient) GetUser(ctx context.Context, in *GetUserRequest, opt
 // All implementations must embed UnimplementedUserServiceServer
 // for forward compatibility
 type UserServiceServer interface {
-	Login(context.Context, *LoginRequest) (*LoginResponse, error)
-	RegisterUser(context.Context, *RegisterUserReuqest) (*RegisterUserResponse, error)
-	EditUser(context.Context, *EditUserRequest) (*EditUserResponse, error)
-	GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error)
+	Login(context.Context, *LoginRequest) (*LoginReply, error)
+	RegisterUser(context.Context, *RegisterUserReuqest) (*RegisterUserReply, error)
+	EditUser(context.Context, *EditUserRequest) (*EditUserReply, error)
+	GetUser(context.Context, *GetUserRequest) (*GetUserReply, error)
 	mustEmbedUnimplementedUserServiceServer()
 }
 
@@ -87,16 +87,16 @@ type UserServiceServer interface {
 type UnimplementedUserServiceServer struct {
 }
 
-func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginResponse, error) {
+func (UnimplementedUserServiceServer) Login(context.Context, *LoginRequest) (*LoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
-func (UnimplementedUserServiceServer) RegisterUser(context.Context, *RegisterUserReuqest) (*RegisterUserResponse, error) {
+func (UnimplementedUserServiceServer) RegisterUser(context.Context, *RegisterUserReuqest) (*RegisterUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
 }
-func (UnimplementedUserServiceServer) EditUser(context.Context, *EditUserRequest) (*EditUserResponse, error) {
+func (UnimplementedUserServiceServer) EditUser(context.Context, *EditUserRequest) (*EditUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EditUser not implemented")
 }
-func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserResponse, error) {
+func (UnimplementedUserServiceServer) GetUser(context.Context, *GetUserRequest) (*GetUserReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUser not implemented")
 }
 func (UnimplementedUserServiceServer) mustEmbedUnimplementedUserServiceServer() {}

@@ -32,9 +32,8 @@ func NewUserService(ctx context.Context) UserService {
 	}
 }
 
-//TODO:grpc不使用XxxResponse，使用XxxReply
 //QUESTION:为啥http_service Service中用的指针，grpc_service Service没有用指针，自动处理了还是和调用有关系
-func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (*proto.LoginResponse, error) {
+func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (*proto.LoginReply, error) {
 	//web(http-server)-service(grpc-server)-dao
 	//1.用户账户是否存在
 	u, err := svc.dao.GetUserInfo(request.Username)
@@ -56,20 +55,21 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 	//3.1 使用uuid生成sessionID
 	sessionID := uuid.NewV4()
 	//3.2 存储sessionID以及对应的username
-	getUserResponse := &proto.GetUserResponse{
+	getUserResponse := &proto.GetUserReply{
 		Username:   u.Username,
 		Nickname:   u.Nickname,
 		ProfilePic: u.ProfilePic,
 	}
 
 	_ = svc.cache.Set(svc.ctx, "session_id:"+sessionID.String(), u.Username, time.Hour)
-	_ = svc.UpdateUserProfile(u.Username, getUserResponse)
+	_ = svc.UpdateUserProfileToCache(u.Username, getUserResponse)
 
-	return &proto.LoginResponse{Username: u.Username, Nickname: u.Nickname, ProfilePic: u.ProfilePic, SessionId: sessionID.String()}, nil
+	return &proto.LoginReply{Username: u.Username, Nickname: u.Nickname, ProfilePic: u.ProfilePic, SessionId: sessionID.String()}, nil
 
 }
 
-func (svc UserService) RegisterUser(ctx context.Context, request *proto.RegisterUserReuqest) (*proto.RegisterUserResponse, error) {
+//RPC 注册用户
+func (svc UserService) RegisterUser(ctx context.Context, request *proto.RegisterUserReuqest) (*proto.RegisterUserReply, error) {
 	//1.判断username是否已存在
 	_, err := svc.dao.GetUserInfo(request.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -85,12 +85,12 @@ func (svc UserService) RegisterUser(ctx context.Context, request *proto.Register
 		return nil, err
 	}
 	//RegisterUserResponse 没有定义字段
-	return &proto.RegisterUserResponse{}, nil
+	return &proto.RegisterUserReply{}, nil
 
 }
 
-func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequest) (*proto.EditUserResponse, error) {
-
+//RPC 编辑用户
+func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequest) (*proto.EditUserReply, error) {
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
 	if err != nil {
@@ -113,20 +113,21 @@ func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequ
 	}
 
 	//5.更新缓存
-	getUserResponse := &proto.GetUserResponse{
+	getUserResponse := &proto.GetUserReply{
 		Username:   u.Username,
 		Nickname:   u.Nickname,
 		ProfilePic: u.ProfilePic,
 	}
-	err = svc.UpdateUserProfile(username, getUserResponse)
+	err = svc.UpdateUserProfileToCache(username, getUserResponse)
 	if err != nil {
 		return nil, errors.New("userservice Edit Fail : Cache User Information Fail")
 	}
 
-	return &proto.EditUserResponse{}, nil
+	return &proto.EditUserReply{}, nil
 }
 
-func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserRequest) (*proto.GetUserResponse, error) {
+//RPC 获取用户信息
+func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserRequest) (*proto.GetUserReply, error) {
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
 	if err != nil {
@@ -142,6 +143,7 @@ func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserReques
 
 }
 
+//通过session_id从缓存中获取用户名
 func (svc UserService) GetUsernameFromCache(sessionID string) (string, error) {
 	username, err := svc.cache.Get(svc.ctx, "session_id:"+sessionID)
 	if err != nil {
@@ -150,7 +152,9 @@ func (svc UserService) GetUsernameFromCache(sessionID string) (string, error) {
 	return username, nil
 }
 
-func (svc UserService) UpdateUserProfile(key string, u *proto.GetUserResponse) error {
+//更新缓存中用户信息
+func (svc UserService) UpdateUserProfileToCache(key string, u *proto.GetUserReply) error {
+	//TODO：全局常量
 	cacheKey := "user_profile" + key
 
 	cacheUser, err := json.Marshal(u)
@@ -161,15 +165,16 @@ func (svc UserService) UpdateUserProfile(key string, u *proto.GetUserResponse) e
 	return err
 }
 
-func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserResponse, error) {
+//从缓存中获取用户信息
+func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserReply, error) {
+	//TODO:全局常量
 	cacheKey := "user_profile" + key
 
 	value, err := svc.cache.Get(svc.ctx, cacheKey)
 	if err != nil {
 		return nil, err
 	} else {
-		getUserResponse := proto.GetUserResponse{}
-		//TODO：反序列化时传入指针
+		getUserResponse := proto.GetUserReply{}
 		json.Unmarshal([]byte(value), &getUserResponse)
 		return &getUserResponse, nil
 	}

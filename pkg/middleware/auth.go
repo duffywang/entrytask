@@ -11,17 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//客户端请求携带session_id校验
 func SessionRequired(c *gin.Context) {
 	res := response.NewResponse(c)
 	sessionID, err := c.Cookie("session_id")
 	if err != nil {
-		res.ToErrorResponse(status.SessionError)
+		res.ResponseError(status.SessionError)
 		return
 	}
 	c.Set("session_id", sessionID)
 	c.Next()
 }
 
+//登录校验
 func LoginRequired(c *gin.Context) {
 	res := response.NewResponse(c)
 	sessionID, err := c.Cookie("session_id")
@@ -29,7 +31,7 @@ func LoginRequired(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	username, err := svc.AuthUser(sessionID)
 	if err != nil {
-		res.ToErrorResponse(status.UserLoginError)
+		res.ResponseError(status.UserLoginError)
 		return
 	}
 	c.Set("username", username)
@@ -37,8 +39,9 @@ func LoginRequired(c *gin.Context) {
 
 }
 
+//请求耗时统计
 func TimeMonitor(c *gin.Context) {
-	if strings.HasSuffix(c.Request.URL.String(),"js") {
+	if strings.HasSuffix(c.Request.URL.String(),"js") || strings.HasSuffix(c.Request.URL.String(),"ico") {
 		return
 	}
 	start := time.Now()

@@ -6,7 +6,7 @@ option go_package =".;proto";
 
 
 service FileService {
-    rpc Upload (UploadRequest) returns (UploadResponse);
+    rpc Upload (UploadRequest) returns (UploadReply);
 }
 
 message UploadRequest{
@@ -15,7 +15,7 @@ message UploadRequest{
     bytes contents = 3;
 }
 
-message UploadResponse {
+message UploadReply {
     string file_url = 1;
     string file_name = 2;
 }

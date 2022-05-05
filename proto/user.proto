@@ -8,10 +8,10 @@ option go_package =".;proto";
 
 
 service UserService {
-    rpc Login (LoginRequest) returns (LoginResponse);
-    rpc RegisterUser (RegisterUserReuqest) returns (RegisterUserResponse);
-    rpc EditUser (EditUserRequest) returns (EditUserResponse);
-    rpc GetUser (GetUserRequest) returns (GetUserResponse);
+    rpc Login (LoginRequest) returns (LoginReply);
+    rpc RegisterUser (RegisterUserReuqest) returns (RegisterUserReply);
+    rpc EditUser (EditUserRequest) returns (EditUserReply);
+    rpc GetUser (GetUserRequest) returns (GetUserReply);
 
 }
 
@@ -37,24 +37,24 @@ message GetUserRequest {
     string session_id = 1;
 }
 
-message LoginResponse {
+message LoginReply {
     string session_id = 1;
     string username = 2;
     string nickname = 3;
     string profile_pic = 4;
 }
 
-message GetUserResponse {
+message GetUserReply {
     string username = 1;
     string nickname = 2;
     string profile_pic = 3;
     reserved 10;
 }
 
-message RegisterUserResponse {
+message RegisterUserReply {
     
 }
 
-message EditUserResponse {
+message EditUserReply {
     
 }

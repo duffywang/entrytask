@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/signal"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/duffywang/entrytask/global"
@@ -34,7 +33,7 @@ func main() {
 		ReadTimeout:  global.ServerSetting.ReadTimeout,
 		WriteTimeout: global.ServerSetting.WriteTimeout,
 	}
-	
+
 	go func() {
 		//监听
 		log.Printf("Starting HTTP Server , Listening %s ... \n", s.Addr)
@@ -45,51 +44,55 @@ func main() {
 		}
 	}()
 
-	//TODO：服务器退出逻辑
+	//Go1.8 内置Shutdown()方法优雅关机
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(quit, os.Interrupt)
 	<-quit
-	log.Println("Shutting Down Server...")
+	log.Println("ShutDown Server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := s.Shutdown(ctx); err != nil {
-		log.Fatalf("Server Forced to Shutdown:%v", err)
+		log.Fatalf("Server Shutdown:%v", err)
 	}
 
 	log.Println("Server Existing")
 
 }
 
+//初始化
 func init() {
 	err := setupFlag()
 	if err != nil {
 		log.Fatalf("HTTP Set up Flag fail: %v\n", err)
 	}
-	fmt.Println("HTTP server Setup Flag success")
+	
 
 	err = setupSetting()
 	if err != nil {
 		log.Fatalf("HTTP Set up Setting fail: %v\n", err)
 	}
-	fmt.Println("HTTP server Setup Setting success")
+	
 
 	err = setupDBEngine()
 	if err != nil {
 		log.Fatalf("HTTP Set up DBEngine fail %v\n", err)
 	}
-	fmt.Println("HTTP server Setup DB success")
+	
 	err = setupCacheClient()
 	if err != nil {
 		log.Fatalf("HTTP Set up Cache Client fail: %v\n", err)
 	}
-	fmt.Println("HTTP server Setup Cache success")
+	
 	err = setupRPCClient()
 	if err != nil {
 		log.Fatalf("HTTP Set up RPC Client fail: %v\n", err)
 	}
-	fmt.Println("HTTP server Setup RPC Client success")
-
+	
+	err = setupLogger()
+	if err != nil {
+		log.Fatalf("HTTP Set up Logger fail: %v\n", err)
+	}
 }
 
 func setupFlag() error {
@@ -102,6 +105,7 @@ func setupFlag() error {
 	return nil
 }
 
+//装载config文件中配置数据
 func setupSetting() error {
 	log.Printf("%v", config)
 	s, err := setting.NewSetting(strings.Split(config, ",")...)
@@ -112,7 +116,7 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
-	err = s.ReadSection("Database", &global.DatabaseSetting)
+	err = s.ReadSection("Database", &global.DBSetting)
 	if err != nil {
 		return err
 	}
@@ -124,13 +128,21 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
+	
+	if port != ""{
+		global.ServerSetting.RPCPort = port
+	}
+	if mode != ""{
+		global.ServerSetting.Mode = mode
+	}
 
 	return nil
 }
 
+//装载数据库客户端
 func setupDBEngine() error {
 	var err error
-	global.DBEngine, err = models.NewDBEngine(global.DatabaseSetting)
+	global.DBEngine, err = models.NewDBEngine(global.DBSetting)
 	if err != nil {
 		log.Println("Set up DBEngine fail")
 		return err
@@ -139,6 +151,7 @@ func setupDBEngine() error {
 	return nil
 }
 
+//装载缓存客户端
 func setupCacheClient() error {
 	var err error
 	global.RedisClient, err = models.NewCacheClient(global.CacheSetting)
@@ -150,6 +163,7 @@ func setupCacheClient() error {
 	return nil
 }
 
+//装载RPC客户端
 func setupRPCClient() error {
 	var err error
 	global.GRPCClient, err = models.NewRPCClient(global.ClientSetting)
@@ -160,4 +174,15 @@ func setupRPCClient() error {
 	log.Println("Set up RPC Client Success")
 	return nil
 
+}
+
+func setupLogger() error {
+	logfile, err := os.OpenFile("log/httpserver.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		fmt.Printf("open log file error :%v\n", err)
+		return err
+	}
+	log.SetOutput(logfile)
+	log.SetFlags(log.Lshortfile | log.Ldate)
+	return err
 }

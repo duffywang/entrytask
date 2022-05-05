@@ -13,36 +13,9 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type CommonModel struct {
-	ID         uint32 `json:"id"`
-	CreateTime uint32 `json:"create_time,omitempty" `
-	UpdateTime uint32 `json:"update_time,omitempty"`
-}
-// type UserModel struct {
-// 	UserName   string `json:"username,omitempty"`
-// 	NickName   string `json:"nickname"`
-// 	PassWord   string `json:"password,omitempty"`
-// 	ProfilePic string `json:"profile_pic"`
-// 	Status     uint8  `json:"status"`
-// }
 
-/*
-Full-Featured ORM
-Associations (Has One, Has Many, Belongs To, Many To Many, Polymorphism, Single-table inheritance)
-Hooks (Before/After Create/Save/Update/Delete/Find)
-Eager loading with Preload, Joins
-Transactions, Nested Transactions, Save Point, RollbackTo to Saved Point
-Context, Prepared Statement Mode, DryRun Mode
-Batch Insert, FindInBatches, Find To Map
-SQL Builder, Upsert, Locking, Optimizer/Index/Comment Hints, NamedArg, Search/Update/Create with SQL Expr
-Composite Primary Key
-Auto Migrations
-Logger
-Extendable, flexible plugin API: Database Resolver (Multiple Databases, Read/Write Splitting) / Prometheus…
-Every feature comes with tests
-Developer Friendly
-*/
-func NewDBEngine(databaseSetting *setting.DatabaseSetting) (*gorm.DB, error) {
+//返回数据库客户端
+func NewDBEngine(databaseSetting *setting.DBSetting) (*gorm.DB, error) {
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
 		databaseSetting.UserName,
 		databaseSetting.PassWord,
@@ -65,6 +38,7 @@ func NewDBEngine(databaseSetting *setting.DatabaseSetting) (*gorm.DB, error) {
 	return db, nil
 }
 
+//返回缓存redis客户端
 func NewCacheClient(cacheSetting *setting.CacheSetting) (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: cacheSetting.Host,
@@ -73,6 +47,7 @@ func NewCacheClient(cacheSetting *setting.CacheSetting) (*redis.Client, error) {
 	return rdb, nil
 }
 
+//返回grpc客户端
 func NewRPCClient(clientSetting *setting.ClientSetting) (*grpc.ClientConn, error) {
 	// Background returns a non-nil, empty Context. It is never canceled, has no
 	// values, and has no deadline. It is typically used by the main function,

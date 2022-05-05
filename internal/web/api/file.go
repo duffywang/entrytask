@@ -20,7 +20,7 @@ func (f File) Upload(c *gin.Context) {
 	//TODO : file := c.FormFile("file")
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
-		resp.ToErrorResponse(status.FileFormError)
+		resp.ResponseError(status.FileFormError)
 		return
 	}
 
@@ -33,9 +33,9 @@ func (f File) Upload(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	uploadResponse, err := svc.Upload(&param)
 	if err != nil {
-		resp.ToErrorResponse(status.FileUploadError)
+		resp.ResponseError(status.FileUploadError)
 		return
 	}
 
-	resp.ToNormalResponse("Upload Profile Picture Success", uploadResponse)
+	resp.ResponseOK("Upload Profile Picture Success", uploadResponse)
 }
