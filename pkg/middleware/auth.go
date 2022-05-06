@@ -7,6 +7,7 @@ import (
 
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/internal/status"
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/duffywang/entrytask/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -14,19 +15,19 @@ import (
 //客户端请求携带session_id校验
 func SessionRequired(c *gin.Context) {
 	res := response.NewResponse(c)
-	sessionID, err := c.Cookie("session_id")
+	sessionID, err := c.Cookie(constant.SessionId)
 	if err != nil {
 		res.ResponseError(status.SessionError)
 		return
 	}
-	c.Set("session_id", sessionID)
+	c.Set(constant.SessionId, sessionID)
 	c.Next()
 }
 
 //登录校验
 func LoginRequired(c *gin.Context) {
 	res := response.NewResponse(c)
-	sessionID, err := c.Cookie("session_id")
+	sessionID, _ := c.Cookie(constant.SessionId)
 
 	svc := http_service.NewService(c.Request.Context())
 	username, err := svc.AuthUser(sessionID)

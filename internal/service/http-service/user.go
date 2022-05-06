@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	proto "github.com/duffywang/entrytask/proto"
+	"github.com/duffywang/entrytask/internal/constant"
 )
 
 //定义各种请求结构体
@@ -103,7 +104,7 @@ func (svc *Service) EditUser(request *EditUserRequest) (*EditUserResponse, error
 
 //校验是否已登录，session_id存储于缓存中
 func (svc *Service) AuthUser(sessionID string) (string, error) {
-	username, err := svc.cache.Get(svc.ctx, "session_id"+sessionID)
+	username, err := svc.cache.Get(svc.ctx, constant.SessionIdWithColon+sessionID)
 	if err != nil {
 		return "", errors.New("login authuser fail")
 	}

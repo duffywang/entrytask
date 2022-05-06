@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/duffywang/entrytask/global"
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/duffywang/entrytask/internal/dao"
 	"github.com/duffywang/entrytask/pkg/utils/hashutils"
 	"github.com/duffywang/entrytask/proto"
@@ -61,7 +62,7 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 		ProfilePic: u.ProfilePic,
 	}
 
-	_ = svc.cache.Set(svc.ctx, "session_id:"+sessionID.String(), u.Username, time.Hour)
+	_ = svc.cache.Set(svc.ctx, constant.SessionIdWithColon+sessionID.String(), u.Username, time.Hour)
 	_ = svc.UpdateUserProfileToCache(u.Username, getUserResponse)
 
 	return &proto.LoginReply{Username: u.Username, Nickname: u.Nickname, ProfilePic: u.ProfilePic, SessionId: sessionID.String()}, nil
@@ -77,16 +78,13 @@ func (svc UserService) RegisterUser(ctx context.Context, request *proto.Register
 		return nil, errors.New(" RegisterUser Fail : Username exist")
 	}
 	//数据库中不存在要注册的username，则继续执行注册逻辑
-
 	pwd := hashutils.Hash(request.Password)
-	//TODO:过期时间设为0是什么意思
 	_, err = svc.dao.CreateUser(request.Username, request.Nickname, pwd, request.ProfilePic, 0)
 	if err != nil {
 		return nil, err
 	}
 	//RegisterUserResponse 没有定义字段
 	return &proto.RegisterUserReply{}, nil
-
 }
 
 //RPC服务端 编辑用户方法
@@ -140,12 +138,11 @@ func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserReques
 		return nil, errors.New("userservice Get Fail : Get User Profile From Cache Fail")
 	}
 	return u, nil
-
 }
 
 //通过session_id从缓存中获取用户名
 func (svc UserService) GetUsernameFromCache(sessionID string) (string, error) {
-	username, err := svc.cache.Get(svc.ctx, "session_id:"+sessionID)
+	username, err := svc.cache.Get(svc.ctx, constant.SessionIdWithColon+sessionID)
 	if err != nil {
 		return "", err
 	}
@@ -155,7 +152,7 @@ func (svc UserService) GetUsernameFromCache(sessionID string) (string, error) {
 //更新缓存中用户信息
 func (svc UserService) UpdateUserProfileToCache(key string, u *proto.GetUserReply) error {
 	//TODO：全局常量
-	cacheKey := "user_profile" + key
+	cacheKey := constant.ProfilePicWithColon + key
 
 	cacheUser, err := json.Marshal(u)
 	if err != nil {
@@ -168,7 +165,7 @@ func (svc UserService) UpdateUserProfileToCache(key string, u *proto.GetUserRepl
 //从缓存中获取用户信息
 func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserReply, error) {
 	//TODO:全局常量
-	cacheKey := "user_profile" + key
+	cacheKey := constant.ProfilePicWithColon + key
 
 	value, err := svc.cache.Get(svc.ctx, cacheKey)
 	if err != nil {

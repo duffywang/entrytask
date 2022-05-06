@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/duffywang/entrytask/internal/models"
 )
 
@@ -42,7 +43,7 @@ func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
 	}
 
 	if profilePic != "" {
-		values["profile_pic"] = profilePic
+		values[constant.ProfilePic] = profilePic
 	}
 
 	err := u.UpdateUserInfo(d.engine, values)

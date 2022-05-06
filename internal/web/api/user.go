@@ -8,6 +8,7 @@ import (
 
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/internal/status"
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/duffywang/entrytask/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +46,7 @@ func (u User) Login(c *gin.Context) {
 		"Username": loginResponse.Username,
 		"Nickname": loginResponse.Nickname,
 	})
-	c.SetCookie("session_id", loginResponse.SessionID, 3600, "/", "", false, true)
+	c.SetCookie(constant.SessionId, loginResponse.SessionID, 3600, "/", "", false, true)
 	resp.ResponseOK("Login Success", loginResponse)
 
 }
@@ -55,7 +56,7 @@ func (u User) Get(c *gin.Context) {
 	resp := response.NewResponse(c)
 	param := http_service.GetUserRequest{}
 	//登录后具有sessionID信息，
-	sessionID, _ := c.Get("session_id")
+	sessionID, _ := c.Get(constant.SessionId)
 	//sessionID.(string)
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 
@@ -120,7 +121,7 @@ func (u User) Edit(c *gin.Context) {
 	}
 	svc := http_service.NewService(c.Request.Context())
 	//登录后具有sessionID信息，请求中带有session_id，通过sessionID查询用户信息
-	sessionID, _ := c.Get("session_id")
+	sessionID, _ := c.Get(constant.SessionId)
 	//TODO：为什么要这样？
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 	editUserResponse, err := svc.EditUser(&param)
