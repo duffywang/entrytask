@@ -41,9 +41,9 @@ gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息p
 
 # 三、功能
 ## 3.1 系统架构设计
-![系统架构设计](#pic_center)
+![系统架构设计](https://github.com/duffywang/entrytask/blob/main/img/硬件架构.png#pic_center)
 
-![业务架构设计](#pic_center)
+![业务架构设计](https://github.com/duffywang/entrytask/blob/main/img/业务架构.png#pic_center)
 
 ## 3.2 接口文档
 ### 登录接口 api/user/login POST
