@@ -1,63 +1,60 @@
 # 一、entrytask项目简介
-实现一个用户管理系统，用户可以登录、拉取和编辑他们的用户信息。用户可以在Web页面输入用户名和密码登录，后端系统负责校验用户身份，成功登录后展示用户的相关信息，可以修改用户昵称和用户头像，。
+实现一个用户管理系统，用户可以登录、拉取和编辑他们的用户信息。用户可以在Web页面输入用户名和密码登录，后端系统负责校验用户身份，成功登录后展示用户的相关信息，可以修改用户昵称和用户头像。
 
-TODO：参考标准的README.md文档规范是怎么写的
 
 # 二、项目包结构
-## cmd
-支持编译不同二进制程序的包，需要相关router, handler包和main入口包。
-包括http服务端、rpc服务端和客户端的配置读取，构建部署
-
-## internal
-项目内部核心逻辑，包括前端展示层、Web API层，Service层、Dao数据持久化层，包括具体业务逻辑
-
-## pkg
-如果你把代码包放在根目录的pkg下，其他项目是可以直接导入pkg下的代码包的，即这里的代码包是开放的，当然你的项目本身也可以直接访问的。
-如果你的项目是一个开源的并且让其他人使用你封装的一些函数等，放在pkg中是合适的。
-
 ## benchmark
-性能测试数据，要求如下
-1. 数据库中必须有10000000条用户信息
-2. 返回结果是正确的
-3. 每个请求都要包含RPC调用和MySQL或Redis访问
-4. 200并发固定用户，HTTP API QPS大于3000；200并发随机用户HTTP API QPS大于1000
-5. 2000并发固定用户，HTTP API QPS大于1500；2000并发随机用户HTTP API QPS大于800
+存放性能测试数据。
+
+## cmd
+包括http服务端、rpc服务端和客户端的配置读取，构建部署入口。
 
 ## configs
-项目全局配置数据，包括HTTP服务配置、连接数据库配置、Redis缓存配置以及gRPC服务配置
+项目全局配置数据，包括HTTP服务配置、连接数据库配置、Redis缓存配置以及gRPC服务配置。
 
 ## global
-项目使用到的数据库客户端、redis客户端以及gRPC客户端
+项目使用到的数据库客户端、redis客户端以及gRPC客户端。
 
-## proto
-gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息pb文件和文件新pb文件，以及使用protoc指令生成的文件，举个例子
-```
-protoc --go-grpc_out=. user.proto
-protoc --go_out=. user.proto
-```
-具体可参考官方文档： https://github.com/protocolbuffers/protobuf
+## img
+说明文档中使用到的图片。
 
-## upload
-保存用户上传的头像图片
+## internal
+项目内部核心逻辑，包括前端展示层、Web API层，Service层、Dao数据持久化层，包括具体业务逻辑。
 
 ## log
-记录日志文件，分为HTTP服务端日志和RPC服务端日志
+记录日志文件，分为HTTP服务端日志和RPC服务端日志。
+
+## pkg
+项目中使用到的中间件、工具。
+
+## proto
+gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息pb文件和文件新pb文件，以及使用protoc指令生成的文件。
+
+## upload
+保存用户上传的头像图片。
+
+## view
+用户系统前端HTML页面代码。
 
 
-# 三、部署
+# 三、功能
+
+
+
+# 四、部署
 ## 数据库MySQL
-启动相关指令
+MySQL服务器启动相关指令
 ```
 sudo mysql.server start   //启动MySQL服务器
 sudo mysql.server stop    //关闭MySQL服务器
 sudo mysql.server restart //重启MySQL服务器
 ```
 
-登录，需要输入数据库密码
+登录MySQL服务器，需要输入数据库密码
 ```
 mysql -uroot -p
 ```
-常用指令
+MySQL常用指令，帮助使用
 ```
 show databases;       //列出所有的数据库
 show tables;          //列出所有的数据表
@@ -115,6 +112,16 @@ $
 ```
 SELECT insert_user_table_v2(); $ //别忘记结束符$
 ```
+数据库中成功插入了10,000,000条数据
+```
+mysql>select count(*) from user_table;
++----------+
+| count(*) |
++----------+
+| 10000007 |
++----------+
+```
+
 ## Redis
 进入redis文件usr/local/opt/redis/bin目录下，启动redis服务端
 ```
@@ -124,34 +131,26 @@ redis-server
 ```
 redis-cli
 ```
-# 四、 
+
+## http服务器
+启动http服务器，可以设置flag参数-mode -port 
+```
+go run ./cmd/http-server/main.go
+```
+
+## rpc服务器
+启动rpc服务器
+```
+go run ./cmd/rpc-server/main.go
+```
 
 
-使用的标准库 fmt error flag log strov
-使用的第三方库
 
-使用的插件
-Go
-Shades of Purple
-vscode-icons
-vscode-protos
-Clang-Format
-
-gocode 代码自动完成
-gopkgs 未导入的软件包提供自动补全功能
-go-outline 文档大纲功能？
-go-symbol ？
-guru 查找参考和查找接口实现功能
-gorename: 重命名功能
-gotests: 为Go:Generate Unit Tests 指令提供支持
-*impl: 为Go:Generate Interface Stubs 命令提供支持 
-*gomodifytags: 为Go:Add Tags to Struct Fields 和Remove Tags From Struct Fields命令
-*fillstruct: 为Go:Fill struct命令的支持
-*goplay: 为Go: Run on Go Playgrouond 命令提供支持
-*golint 代码规范？何为通过go lint
-goreturns
-dic: 扩展调试
-gopls
-gocode-gomod 
 
 # 参考
+https://github.com/gin-gonic/gin
+https://github.com/grpc/grpc-go
+https://github.com/protocolbuffers/protobuf
+https://github.com/go-gorm/gorm
+https://github.com/link1st/go-stress-testing
+
