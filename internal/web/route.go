@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//建立路由关系
 func NewRouter() *gin.Engine {
 
 	//gin.Default 默认使用了Logger 和 Recovery中间件，Logger将日志写入gin.DefaultWriter,Recovery中间件会recover任何panic,返回500状态码
@@ -19,7 +20,7 @@ func NewRouter() *gin.Engine {
 	//加载其他
 	r.LoadHTMLGlob("view/*")
 
-	r.Use(middleware.TimeMonitor)
+	//r.Use(middleware.TimeMonitor)
 	pingGroup := r.Group("api")
 	//TODO:Login(c *gin.Context) 没有带参数
 	pingGroup.GET("/ping", ping.Ping)

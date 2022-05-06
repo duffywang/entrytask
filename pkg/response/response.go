@@ -26,7 +26,7 @@ func (r *Response) ResponseError(err *status.Error) {
 	response := gin.H{"code": err.GetCode(), "msg": err.GetMsg()}
 	details := err.GetData()
 	if len(details) > 0 {
-		response["data"] = details
+		response["data"] = details[0]
 	}
 	r.Ctx.JSON(err.GetStatusCode(), response)
 }

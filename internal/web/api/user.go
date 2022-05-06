@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"text/template"
 
@@ -17,14 +18,16 @@ func NewUser() User {
 	return User{}
 }
 
-//为啥不是指针类型？
+//API层 用户登录
 func (u User) Login(c *gin.Context) {
 
 	//返回结果和参数
 	resp := response.NewResponse(c)
-	param := http_service.LoginRequest{}
+
 	//检查数据格式是否对应正确
+	param := http_service.LoginRequest{}
 	err := c.ShouldBind(&param)
+	//log.Printf("Login param %v\n", param)
 	if err != nil {
 		resp.ResponseError(status.InvalidParamsError)
 		return
@@ -33,6 +36,8 @@ func (u User) Login(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	loginResponse, err := svc.Login(&param)
 	if err != nil {
+		log.Println(err.Error())
+		c.HTML(http.StatusOK, "login.html", nil)
 		resp.ResponseError(status.UserLoginError)
 		return
 	}
@@ -45,6 +50,7 @@ func (u User) Login(c *gin.Context) {
 
 }
 
+//API层 获取用户信息
 func (u User) Get(c *gin.Context) {
 	resp := response.NewResponse(c)
 	param := http_service.GetUserRequest{}
@@ -57,7 +63,7 @@ func (u User) Get(c *gin.Context) {
 	//通过sessionID查询用户信息
 	getUserResponse, err := svc.GetUserInfo(&param)
 	if err != nil {
-		//日志
+		log.Println(err.Error())
 		resp.ResponseError(status.UserGetError)
 		return
 	}
@@ -79,6 +85,7 @@ func (u User) Get(c *gin.Context) {
 
 }
 
+//API层 注册用户信息
 func (u User) Register(c *gin.Context) {
 	resp := response.NewResponse(c)
 	param := http_service.RegisterUserReuqest{}
@@ -92,7 +99,7 @@ func (u User) Register(c *gin.Context) {
 	//通过sessionID查询用户信息
 	registerUserResponse, err := svc.RegisterUser(&param)
 	if err != nil {
-		//日志
+		log.Println(err.Error())
 		resp.ResponseError(status.UserRegisterError)
 		return
 	}
@@ -101,6 +108,7 @@ func (u User) Register(c *gin.Context) {
 
 }
 
+//API层 编辑用户信息
 func (u User) Edit(c *gin.Context) {
 	resp := response.NewResponse(c)
 	param := http_service.EditUserRequest{}
@@ -117,7 +125,7 @@ func (u User) Edit(c *gin.Context) {
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 	editUserResponse, err := svc.EditUser(&param)
 	if err != nil {
-		//日志
+		log.Println(err.Error())
 		resp.ResponseError(status.UserEditError)
 		return
 	}

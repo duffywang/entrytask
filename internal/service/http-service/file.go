@@ -19,9 +19,8 @@ type UploadFileResponse struct {
 	FileUrl  string `json:"fileurl"`
 }
 
-//上传图片服务
+//RPC客户端 上传图片方法
 func (svc *Service) Upload(request *UploadFileRequest) (*UploadFileResponse, error) {
-
 	//上传图片解析，转化为字节类型
 	src, err := request.FileHeader.Open()
 	if err != nil {
@@ -47,6 +46,7 @@ func (svc *Service) Upload(request *UploadFileRequest) (*UploadFileResponse, err
 
 var fileClient proto.FileServiceClient
 
+//获取图片上传服务RPC客户端
 func (svc *Service) GetFileClient() proto.FileServiceClient {
 	if fileClient == nil {
 		fileClient = proto.NewFileServiceClient(svc.client)

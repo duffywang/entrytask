@@ -25,7 +25,6 @@ var (
 
 func main() {
 	r := web.NewRouter()
-
 	//服务器配置
 	s := &http.Server{
 		Addr:         ":" + global.ServerSetting.HttpPort,
@@ -66,29 +65,27 @@ func init() {
 	if err != nil {
 		log.Fatalf("HTTP Set up Flag fail: %v\n", err)
 	}
-	
 
 	err = setupSetting()
 	if err != nil {
 		log.Fatalf("HTTP Set up Setting fail: %v\n", err)
 	}
-	
 
 	err = setupDBEngine()
 	if err != nil {
 		log.Fatalf("HTTP Set up DBEngine fail %v\n", err)
 	}
-	
+
 	err = setupCacheClient()
 	if err != nil {
 		log.Fatalf("HTTP Set up Cache Client fail: %v\n", err)
 	}
-	
+
 	err = setupRPCClient()
 	if err != nil {
 		log.Fatalf("HTTP Set up RPC Client fail: %v\n", err)
 	}
-	
+
 	err = setupLogger()
 	if err != nil {
 		log.Fatalf("HTTP Set up Logger fail: %v\n", err)
@@ -128,11 +125,11 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
-	
-	if port != ""{
+
+	if port != "" {
 		global.ServerSetting.RPCPort = port
 	}
-	if mode != ""{
+	if mode != "" {
 		global.ServerSetting.Mode = mode
 	}
 

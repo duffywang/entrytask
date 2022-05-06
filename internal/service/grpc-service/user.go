@@ -16,7 +16,6 @@ import (
 )
 
 //rpc服务端逻辑，提供服务
-
 type UserService struct {
 	ctx   context.Context
 	dao   *dao.Dao
@@ -32,7 +31,8 @@ func NewUserService(ctx context.Context) UserService {
 	}
 }
 
-//QUESTION:为啥http_service Service中用的指针，grpc_service Service没有用指针，自动处理了还是和调用有关系
+//TODO:为啥http_service Service中用的指针，grpc_service Service没有用指针，自动处理了还是和调用有关系
+//RPC服务端 用户登录方法
 func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (*proto.LoginReply, error) {
 	//web(http-server)-service(grpc-server)-dao
 	//1.用户账户是否存在
@@ -68,7 +68,7 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 
 }
 
-//RPC 注册用户
+//RPC服务端 注册用户方法
 func (svc UserService) RegisterUser(ctx context.Context, request *proto.RegisterUserReuqest) (*proto.RegisterUserReply, error) {
 	//1.判断username是否已存在
 	_, err := svc.dao.GetUserInfo(request.Username)
@@ -89,7 +89,7 @@ func (svc UserService) RegisterUser(ctx context.Context, request *proto.Register
 
 }
 
-//RPC 编辑用户
+//RPC服务端 编辑用户方法
 func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequest) (*proto.EditUserReply, error) {
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
@@ -126,7 +126,7 @@ func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequ
 	return &proto.EditUserReply{}, nil
 }
 
-//RPC 获取用户信息
+//RPC服务端 获取用户信息方法
 func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserRequest) (*proto.GetUserReply, error) {
 	//1.通过sessionID获取username
 	username, err := svc.GetUsernameFromCache(request.SessionId)
@@ -179,3 +179,5 @@ func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserReply,
 		return &getUserResponse, nil
 	}
 }
+
+

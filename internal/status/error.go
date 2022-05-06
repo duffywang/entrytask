@@ -10,15 +10,16 @@ import (
 type Error struct {
 	Code int    `json:"code"`
 	Msg  string `json:"msg"`
-	//为何定义为切片
 	Data []string `json:"data"`
 }
-
-var codes = map[int]string{}
 
 func NewError(code int, msg string) *Error {
 	//避免code重复逻辑，codes怎么添加key-value呢
 	return &Error{Code: code, Msg: msg}
+}
+
+func NewErrorWithData(code int, msg string, data []string) *Error {
+	return &Error{Code: code, Msg: msg, Data: data}
 }
 
 func (e *Error) GetError() string {

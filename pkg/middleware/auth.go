@@ -41,12 +41,14 @@ func LoginRequired(c *gin.Context) {
 
 //请求耗时统计
 func TimeMonitor(c *gin.Context) {
+	log.Printf("Before Request: %v\n",c.Request)
+	log.Printf("Request.Body : %v\n",c.Request.Body)
 	if strings.HasSuffix(c.Request.URL.String(),"js") || strings.HasSuffix(c.Request.URL.String(),"ico") {
 		return
 	}
 	start := time.Now()
 	c.Next()
 	cost := time.Since(start)
-	log.Printf("%v\n",c.Request)
+	log.Printf("After Request: %v\n",c.Request)
 	log.Printf("Process Cost Time : %v\n", cost)
 }

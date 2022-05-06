@@ -10,7 +10,6 @@ import (
 
 type Service struct {
 	ctx context.Context
-	//全局唯一
 	dao    *dao.Dao
 	cache  *dao.RedisClient
 	client *grpc.ClientConn

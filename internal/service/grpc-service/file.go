@@ -25,13 +25,14 @@ func NewFileService(ctx context.Context) FileService {
 	}
 }
 
+//RPC服务端 用户上传图片方法
 func (svc FileService) Upload(ctx context.Context, request *proto.UploadRequest) (*proto.UploadReply, error) {
 	fileName := fileutils.GetFileName(request.FileName)
 	savePath := fileutils.GetSavePath()
 	dest := savePath + "/" + fileName
 
 	if fileutils.CheckSavePathValid(savePath) {
-		//存储路径不存在，创建一个
+		//如果存储路径不存在，创建一个
 		err := fileutils.CreateSavePath(savePath)
 		if err != nil {
 			return nil, errors.New("svc.Upload CreateSavePath Failed")

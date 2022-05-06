@@ -9,10 +9,10 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 
+	"github.com/duffywang/entrytask/global"
 	"github.com/duffywang/entrytask/pkg/setting"
 	"github.com/go-redis/redis/v8"
 )
-
 
 //返回数据库客户端
 func NewDBEngine(databaseSetting *setting.DBSetting) (*gorm.DB, error) {
@@ -32,9 +32,9 @@ func NewDBEngine(databaseSetting *setting.DBSetting) (*gorm.DB, error) {
 	//连接可复用的最大时间
 	sqlDB.SetConnMaxLifetime(time.Minute * 3)
 	//设置打开数据库连接的最大数量
-	sqlDB.SetMaxOpenConns(20)
+	sqlDB.SetMaxOpenConns(global.DBSetting.MaxOpenConns)
 	//设置连接池中空闲的最大数量
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxIdleConns(global.DBSetting.MaxIdleConns)
 	return db, nil
 }
 

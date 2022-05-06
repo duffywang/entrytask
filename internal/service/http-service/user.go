@@ -9,8 +9,8 @@ import (
 //定义各种请求结构体
 //请求使用form格式
 type LoginRequest struct {
-	Username string `form:"username" binding:"required"`
-	Password string `form:"password" binding:"required"`
+	Username string `form:"username" json:"username" binding:"required"`
+	Password string `form:"password" json:"password" binding:"required"`
 }
 
 type RegisterUserReuqest struct {
@@ -50,6 +50,7 @@ type RegisterUserResponse struct {
 type EditUserResponse struct {
 }
 
+//RPC客户端调用登录服务 
 func (svc *Service) Login(request *LoginRequest) (*LoginResponse, error) {
 	res, err := svc.GetUserClient().Login(svc.ctx, &proto.LoginRequest{
 		Username: request.Username,
@@ -59,9 +60,9 @@ func (svc *Service) Login(request *LoginRequest) (*LoginResponse, error) {
 		return nil, err
 	}
 	return &LoginResponse{Username: res.Username, Nickname: res.Nickname, ProfilePic: res.ProfilePic, SessionID: res.SessionId}, nil
-
 }
 
+//RPC客户端 调用用户信息服务 
 func (svc *Service) GetUserInfo(request *GetUserRequest) (*GetUserResponse, error) {
 	res, err := svc.GetUserClient().GetUser(svc.ctx, &proto.GetUserRequest{
 		SessionId: request.SessionID,
@@ -72,6 +73,7 @@ func (svc *Service) GetUserInfo(request *GetUserRequest) (*GetUserResponse, erro
 	return &GetUserResponse{Username: res.Username, Nickname: res.Nickname, ProfilePic: res.ProfilePic}, nil
 }
 
+//RPC客户端 调用注册用户信息服务 
 func (svc *Service) RegisterUser(request *RegisterUserReuqest) (*RegisterUserResponse, error) {
 	//TODO:生成参数快捷键
 	_, err := svc.GetUserClient().RegisterUser(svc.ctx, &proto.RegisterUserReuqest{
@@ -86,6 +88,7 @@ func (svc *Service) RegisterUser(request *RegisterUserReuqest) (*RegisterUserRes
 	return &RegisterUserResponse{}, nil
 }
 
+//RPC客户端调用编辑用户信息服务 
 func (svc *Service) EditUser(request *EditUserRequest) (*EditUserResponse, error) {
 	_, err := svc.GetUserClient().EditUser(svc.ctx, &proto.EditUserRequest{
 		SessionId:  request.SessionID,
@@ -98,6 +101,7 @@ func (svc *Service) EditUser(request *EditUserRequest) (*EditUserResponse, error
 	return &EditUserResponse{}, nil
 }
 
+//校验是否已登录，session_id存储于缓存中
 func (svc *Service) AuthUser(sessionID string) (string, error) {
 	username, err := svc.cache.Get(svc.ctx, "session_id"+sessionID)
 	if err != nil {
@@ -108,6 +112,7 @@ func (svc *Service) AuthUser(sessionID string) (string, error) {
 
 var userClient proto.UserServiceClient
 
+//获取用户服务RPC客户端
 func (svc *Service) GetUserClient() proto.UserServiceClient {
 	if userClient == nil {
 		userClient = proto.NewUserServiceClient(svc.client)

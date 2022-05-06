@@ -6,8 +6,8 @@ Database:
     DBName: entrytask
     Charset: utf8mb4
     ParseTime: True
-    MaxIdleConns: 10
-    MaxOpenConns: 30
+    MaxIdleConns: 100
+    MaxOpenConns: 100
 
 Redis:
     Host: localhost:6379
