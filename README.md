@@ -6,15 +6,25 @@
 
 # 二、项目包结构
 **benchmark:**存放性能测试数据。
+
 **cmd:**包括http服务端、rpc服务端和客户端的配置读取，构建部署入口。
+
 **configs:**项目全局配置数据，包括HTTP服务配置、连接数据库配置、Redis缓存配置以及gRPC服务配置。
+
 **global:**项目使用到的数据库客户端、redis客户端以及gRPC客户端。
+
 **img：**存放README.md文档中使用到的图片。
+
 **internal：**项目内部核心逻辑，包括前端展示层、Web API层，Service层、Dao数据持久化层，包括具体业务逻辑。
+
 **log：**记录日志文件，分为HTTP服务端日志和RPC服务端日志。
+
 **pkg：**项目中使用到的中间件、工具。
+
 **proto：**gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息pb文件和文件新pb文件，以及使用protoc指令生成的文件。
+
 **upload：**保存用户上传的头像图片。
+
 **view：**用户系统前端HTML页面代码。
 
 
@@ -22,6 +32,14 @@
 ## 3.1 系统设计
 ### 系统架构设计
 ![系统架构设计](https://github.com/duffywang/entrytask/blob/main/img/硬件架构.png#pic_center)
+
+主要由5部分构成：
+1. Web客户端浏览器是请求发起端，发送HTTP协议的GET、POST请求。
+2. Web服务端接收Web客户端发起的请求，路由到对应的处理逻辑上，并发起RPC请求，HTTP Server使用gin框架。
+3. RPC服务端注册提供RPC端处理逻辑，RPC Server使用gRPC框架，序列化方式使用proto buf。
+4. RPC服务端需要存储和读取用户登录的SessionID，使用Redis缓存。
+5. MySQLs数据库存储着用户信息表，提供查询、新增、更新数据操作。
+
 
 ### 业务架构设计
 ![业务架构设计](https://github.com/duffywang/entrytask/blob/main/img/业务架构.png#pic_center)
@@ -36,6 +54,8 @@
 
 ### 登录接口 api/user/login POST
 ![登录页面](https://github.com/duffywang/entrytask/blob/main/img/登录页面.png#pic_center)
+
+                              登录页面
 
 **输入参数**
 |    字段名   |类型             |是否必填|含义 |
@@ -85,6 +105,8 @@ curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","passwor
 
 ### 用户注册接口 api/user/register POST
 ![注册页面](https://github.com/duffywang/entrytask/blob/main/img/注册页面.png#pic_center)
+
+                             注册页面
 **输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
@@ -123,6 +145,9 @@ curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","passwor
 
 ### 获取用户信息接口 api/user/get GET
 ![用户页面](https://github.com/duffywang/entrytask/blob/main/img/用户页面.png#pic_center)
+
+                              用户信息页面
+
 **输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
@@ -163,9 +188,6 @@ curl --location --request GET --cookie 'session_id=86261c69-61c1-42d2-bc69-a2861
     "msg":"User Get Error"
 }
 ```
-
-
-
 
 ### 编辑用户信息接口 api/user/edit POST
 
@@ -240,7 +262,8 @@ curl -H "Content-Type:application/json" -X POST -d '{"nickname":"testedit","prof
 ```
 
 
-# 四、部署
+# 四、项目部署
+部署涉及到数据库MySQL、缓存Rdis，HTTP 服务器和RPC服务器，服务部署均在个人PC上，没有使用虚拟机。下面分别讲解部署方法
 ## 数据库MySQL
 官网下载MySQL，进入MySQL下载目录目录，MySQL服务器启动指令
 ```
@@ -249,13 +272,6 @@ sudo mysql.server start   //启动MySQL服务器
 登录MySQL服务器，需要输入数据库密码
 ```
 mysql -uroot -p
-```
-MySQL常用指令，帮助使用
-```
-show databases;       //列出所有的数据库
-show tables;          //列出所有的数据表
-use ${database_name}; //使用选定数据库
-desc ${table_name};   //表结构说明
 ```
 创建数据库entrytask
 ```
