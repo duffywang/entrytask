@@ -33,13 +33,12 @@ func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
 	//通过id查询到用户
 	u := models.User{
 		ID: id,
+		UpdatedAt: uint32(time.Now().Unix()),
 	}
 
-	values := map[string]any{
-		"UpdateTime": uint32(time.Now().Unix()),
-	}
+	values := map[string]any{}
 	if nickName != "" {
-		values["nickname"] = nickName
+		values[constant.Nickname] = nickName
 	}
 
 	if profilePic != "" {

@@ -2,8 +2,11 @@ package constant
 
 
 const(
-	SessionId string = "session_id"
-	SessionIdWithColon string = "session_id:"
-	ProfilePic string = "profile_pic"
-	ProfilePicWithColon string = "profile_pic:"
+	SessionId = "session_id"
+	SessionIdWithColon = "session_id:"
+	ProfilePic = "profile_pic"
+	ProfilePicWithColon = "profile_pic:"
+	Nickname = "nickname"
+	TableName = "user_table"
+
 )

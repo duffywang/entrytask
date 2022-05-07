@@ -271,3 +271,12 @@
 2022/05/06 user.go:102: rpc error: code = Unknown desc = Error 1054: Unknown column 'created_at' in 'field list'
 2022/05/06 main.go:50: ShutDown Server...
 2022/05/06 main.go:58: Server Existing
+2022/05/07 main.go:38: Starting HTTP Server , Listening :8080 ... 
+2022/05/07 user.go:129: rpc error: code = Unknown desc = userservice Edit Fail : Update User Information Fail
+2022/05/07 user.go:129: rpc error: code = Unknown desc = userservice Edit Fail : Update User Information Fail
+2022/05/07 user.go:129: rpc error: code = Unknown desc = userservice Edit Fail : Update User Information Fail
+2022/05/07 user.go:129: rpc error: code = Unknown desc = userservice Edit Fail : Update User Information Fail
+2022/05/07 user.go:40: rpc error: code = Unknown desc = userservice Login fail : pwd incorrect
+2022/05/07 user.go:103: rpc error: code = Unknown desc = Error 1062: Duplicate entry 'test4' for key 'uniq_username'
+2022/05/07 user.go:67: rpc error: code = Unknown desc = userservice Get fail : User Is Not Login in
+2022/05/07 user.go:67: rpc error: code = Unknown desc = userservice Get fail : User Is Not Login in

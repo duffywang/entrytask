@@ -9,7 +9,6 @@ import (
 )
 
 type UploadFileRequest struct {
-	FileType   int
 	File       multipart.File
 	FileHeader *multipart.FileHeader
 }
@@ -37,7 +36,6 @@ func (svc *Service) Upload(request *UploadFileRequest) (*UploadFileResponse, err
 	
 	fileClient := svc.GetFileClient()
 	resp, err := fileClient.Upload(svc.ctx, &proto.UploadRequest{
-		FileType: uint32(request.FileType),
 		FileName: request.FileHeader.Filename,
 		Contents: content,
 	})

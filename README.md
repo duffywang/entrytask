@@ -5,55 +5,45 @@
 
 
 # 二、项目包结构
-**benchmark**
-存放性能测试数据。
-
-**cmd**
-包括http服务端、rpc服务端和客户端的配置读取，构建部署入口。
-
-**configs**
-项目全局配置数据，包括HTTP服务配置、连接数据库配置、Redis缓存配置以及gRPC服务配置。
-
-**global**
-项目使用到的数据库客户端、redis客户端以及gRPC客户端。
-
-**img**
-说明文档中使用到的图片。
-
-**internal**
-项目内部核心逻辑，包括前端展示层、Web API层，Service层、Dao数据持久化层，包括具体业务逻辑。
-
-**log**
-记录日志文件，分为HTTP服务端日志和RPC服务端日志。
-
-**pkg**
-项目中使用到的中间件、工具。
-
-**proto**
-gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息pb文件和文件新pb文件，以及使用protoc指令生成的文件。
-
-**upload**
-保存用户上传的头像图片。
-
-**view**
-用户系统前端HTML页面代码。
+**benchmark:**存放性能测试数据。
+**cmd:**包括http服务端、rpc服务端和客户端的配置读取，构建部署入口。
+**configs:**项目全局配置数据，包括HTTP服务配置、连接数据库配置、Redis缓存配置以及gRPC服务配置。
+**global:**项目使用到的数据库客户端、redis客户端以及gRPC客户端。
+**img：**存放README.md文档中使用到的图片。
+**internal：**项目内部核心逻辑，包括前端展示层、Web API层，Service层、Dao数据持久化层，包括具体业务逻辑。
+**log：**记录日志文件，分为HTTP服务端日志和RPC服务端日志。
+**pkg：**项目中使用到的中间件、工具。
+**proto：**gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息pb文件和文件新pb文件，以及使用protoc指令生成的文件。
+**upload：**保存用户上传的头像图片。
+**view：**用户系统前端HTML页面代码。
 
 
 # 三、功能
-## 3.1 系统架构设计
+## 3.1 系统设计
+### 系统架构设计
 ![系统架构设计](https://github.com/duffywang/entrytask/blob/main/img/硬件架构.png#pic_center)
 
+### 业务架构设计
 ![业务架构设计](https://github.com/duffywang/entrytask/blob/main/img/业务架构.png#pic_center)
 
 ## 3.2 接口文档
+系统一共对外提供了5个接口，分别是：
+1. 用户登录接口
+2. 用户注册接口
+3. 获取用户接口
+4. 编辑用户接口
+5. 上传图片接口
+
 ### 登录接口 api/user/login POST
-输入参数
+![登录页面](https://github.com/duffywang/entrytask/blob/main/img/登录页面.png#pic_center)
+
+**输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
 |username|string           |是         |用户名|
 |password    |string         |是         |密码|
 
-返回参数
+**返回参数**
 |   通用字段 | 业务字段  |类型      |是否可为空|含义 |
 |---------|-------|----------------|-----------------|--|
 |code | |int           |否         |返回码|
@@ -64,13 +54,14 @@ gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息p
 | |profile_pic    |string         |是         |用户头像|
 | |session_id    |string         |是         |sessionID|
 
-请求示例
+**请求示例**
 ```
 curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","password":"1234567"}' 'http://127.0.0.1:8080/api/user/login'
 ```
 
-返回示例
+**返回示例**
 ```
+//success
 {
     "code":0,
     "data":{
@@ -81,11 +72,20 @@ curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","passwor
     },
     "msg":"success"
 }
+
+
+//fail
+{
+    "code":300000,
+    "data":"密码错误，请重试",
+    "msg":"User Login Error"
+}
 ```
 
 
 ### 用户注册接口 api/user/register POST
-输入参数
+![注册页面](https://github.com/duffywang/entrytask/blob/main/img/注册页面.png#pic_center)
+**输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
 |username|string           |是         |用户名|
@@ -93,36 +93,42 @@ curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","passwor
 |nickname  |string         |否       |昵称|
 |profile_pic |string         |否         |用户头像|
 
-返回参数
+**返回参数**
 |   通用字段   |类型      |是否可为空|含义 |
 |---------|----------------------|-----------------|--|
 |code |int           |否         |返回码|
 | msg |string           |否         |返回信息|
 |data  |any          |是        | 具体业务数据|
 
-请求示例
+**请求示例**
 ```
 curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","password":"1234567","nickname":"nicntest4","profile_pic":"xixi"}' 'http://127.0.0.1:8080/api/user/register'
 ```
 
-
-返回示例
+**返回示例**
 ```
+ //success
 {
     "code":0,
-    "data":{
-    },
+    "data":{},
     "msg":"success"
+}
+//fail
+{
+    "code":300001,
+    "data":"用户名已存在",
+    "msg":"User Register Error"
 }
 ```
 
 ### 获取用户信息接口 api/user/get GET
-输入参数
+![用户页面](https://github.com/duffywang/entrytask/blob/main/img/用户页面.png#pic_center)
+**输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
 |session_id|string           |是         |sessionID|
 
-返回参数
+**返回参数**
 |   通用字段 | 业务字段  |类型      |是否可为空|含义 |
 |---------|-------|----------------|-----------------|--|
 |code | |int           |否         |返回码|
@@ -132,13 +138,14 @@ curl -H "Content-Type:application/json" -X POST -d '{"username":"test4","passwor
 | |nickname|string         |是        |昵称|
 | |profile_pic |string         |是         |用户头像|
 
-请求示例
+**请求示例**
 ```
 curl --location --request GET --cookie 'session_id=86261c69-61c1-42d2-bc69-a28610e93a9b' 'http://127.0.0.1:8080/api/user/get'
 ```
 
-返回示例
+**返回示例**
 ```
+//success
 {
     "code":0,
     "data":{
@@ -148,48 +155,97 @@ curl --location --request GET --cookie 'session_id=86261c69-61c1-42d2-bc69-a2861
     },
     "msg":"success"
 }
+
+//fail
+{
+    "code":300002,
+    "data":"SessionID错误",
+    "msg":"User Get Error"
+}
 ```
 
 
+
+
 ### 编辑用户信息接口 api/user/edit POST
-输入参数
+
+**输入参数**
 |    字段名   |类型             |是否必填|含义 |
 |----------------|----------------|-----------------|--|
 |nickname  |string         |否       |昵称|
 |profile_pic |string         |否    |用户头像|
 |session_id|string           |是      |sessionID|
 
-返回参数
+**返回参数**
 |   通用字段   |类型      |是否可为空|含义 |
 |---------|----------------------|-----------------|--|
 |code |int           |否         |返回码|
 
-请求示例
+**请求示例**
 ```
 curl -H "Content-Type:application/json" -X POST -d '{"nickname":"testedit","profilepic":"hahaedit"}' 'http://localhost:8080/api/user/edit' --cookie 'session_id=ffb1fbdd-1784-438c-a8ef-af5cbc1a5022'
 ```
 
-返回示例
+**返回示例**
 ```
+//success
 {
     "code":0,
     "data":{
     },
     "msg":"success"
 }
+
+//fail
+{
+    "code":300003,
+    "msg":"User Edit Error"
+}
 ```
 
+### 上传图片接口 api/file/update POST
+**输入参数**
+|    字段名   |类型       |是否必填|含义|
+|------------|----------|-------|--|
+|file        |file      |是     |文件|
+
+
+**返回参数**
+|   通用字段 | 业务字段  |类型      |是否可为空|含义|
+|---------|-------|--------------|----------|--|
+|code |    |int           |否         |返回码|
+| msg |    |string         |否        |返回信息|
+|data |    |any           |是         |具体业务数据|
+|     |filername|string    |是       |文件名|
+|     |fileurl  |string   |是        |文件地址|
+
+请求在页面上直接上传文件
+
+**返回示例**
+```
+//success
+{
+    "code":0,
+    "data":{
+        "filename":"51ebd8c445683e0520a5f79e8b999c1d.png",
+        "fileurl":"http://localhost:8080/static/51ebd8c445683e0520a5f79e8b999c1d.png"
+    },
+    "msg":"success"
+}
+//fail
+{
+    "code":300004,
+    "msg":"File Upload Error"
+}
+```
 
 
 # 四、部署
 ## 数据库MySQL
-MySQL服务器启动相关指令
+官网下载MySQL，进入MySQL下载目录目录，MySQL服务器启动指令
 ```
 sudo mysql.server start   //启动MySQL服务器
-sudo mysql.server stop    //关闭MySQL服务器
-sudo mysql.server restart //重启MySQL服务器
 ```
-
 登录MySQL服务器，需要输入数据库密码
 ```
 mysql -uroot -p
@@ -201,10 +257,12 @@ show tables;          //列出所有的数据表
 use ${database_name}; //使用选定数据库
 desc ${table_name};   //表结构说明
 ```
-创建数据库entrytask和创建用户信息表user_table
+创建数据库entrytask
 ```
 CREATE DATABASE `entrytask`
-
+```
+创建用户信息表user_table
+```
 CREATE TABLE `user_table` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `username` VARCHAR(64) COLLATE UTF8MB4_UNICODE_CI NOT NULL,
@@ -263,8 +321,7 @@ mysql>select count(*) from user_table;
 ```
 
 ## Redis
-官网下载redis
-进入redis所在目录，Mac系统在usr/local/opt/redis/bin，执行下面命令启动redis服务端。
+官网下载redis，进入redis所在目录，Mac系统在usr/local/opt/redis/bin，执行下面命令启动redis服务端。
 ```
 redis-server
 ```
@@ -286,8 +343,6 @@ go run ./cmd/rpc-server/main.go
 ```
 
 
-
-
 # 参考
 1. https://github.com/gin-gonic/gin
 2. https://github.com/grpc/grpc-go
@@ -295,5 +350,4 @@ go run ./cmd/rpc-server/main.go
 4. https://github.com/go-gorm/gorm
 5. https://github.com/link1st/go-stress-testing
 6. https://github.com/go-redis/redis/v8
-7. 
 
