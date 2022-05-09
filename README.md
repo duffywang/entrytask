@@ -55,9 +55,9 @@ gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息p
 
 主要由5部分构成：
 1. Web客户端浏览器是请求发起端，用户可以在前端页面上进行登录、注册操作，发送相应的HTTP协议GET、POST请求至Web服务器。
-2. Web服务端接收Web客户端发起的请求，根据路由规则匹配到对应的处理逻辑上，Web服务端会发起RPC请求，HTTP Server使用gin框架。
-3. RPC服务端注册提供具体业务处理逻辑，查询数据库、缓存中的数据，RPC服务端使用gRPC框架搭建，序列化方式使用proto buf。
-4. RPC服务端需要存储和读取用户登录的SessionID，使用Redis缓存。
+2. Web服务端接收Web客户端发起的请求，根据路由规则匹配到对应的处理逻辑上，Web服务端会发起RPC请求，待RPC服务端返回响应，然后输出给Web客户端，HTTP Server使用gin框架。
+3. RPC服务端提供具体业务处理逻辑，负责鉴权、业务逻辑处理，需要查询数据库、缓存中的数据，处理完成返回给Web服务端，RPC服务端使用gRPC框架搭建，序列化方式使用Proto Buffer。
+4. RPC服务端需要存储和读取用户登录的SessionID信息，使用Redis缓存。
 5. 数据库存储着用户信息表，提供查询用户信息、新增用户、更新用户信息等数据操作，使用MySQL数据库。
 
 
@@ -71,6 +71,7 @@ gRPC服务使用proto buffer序列化方式，包中包括定义的用户信息p
 3. 获取用户接口
 4. 编辑用户接口
 5. 上传图片接口
+下面对每个接口进行详细介绍
 
 ### 登录接口 api/user/login POST
 
@@ -275,7 +276,7 @@ curl -H "Content-Type:application/json" -X POST -d '{"nickname":"testedit","prof
 
 
 # 四、项目部署
-部署涉及到HTTP服务器和RPC服务器、数据库MySQL服务器和缓存Rdis，服务部署均在个人PC上，没有使用虚拟机。下面分别讲解部署方法：
+部署涉及到HTTP服务器、RPC服务器、数据库MySQL和缓存Rdis，服务均在个人PC上部署，没有使用虚拟机。下面分别讲解部署方法：
 ## http服务器
 启动HTTP服务器 
 ```
@@ -370,7 +371,8 @@ redis-cli
 ```
 
 # QA
-Q1:如何做错误处理？
+**Q1:如何做错误处理？**
+
 针对依赖核心组件，启动项目会先初始化数据库、缓存组件，如果启动时发生异常，执行`panic(err)`中断。
 ```
 	db, err := gorm.Open(mysql.Open(fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=Local",
@@ -400,18 +402,21 @@ Q1:如何做错误处理？
 	}
 ```
 
-Q2:缓存一致性如何保证？
+**Q2:缓存一致性如何保证？**
 
 
-Q3:鉴权机制如何做的？
+**Q3:鉴权机制如何做的？**
+
+用户鉴权整个流程如下
 1. 用户在浏览器端填写用户名和密码登录
 2. 服务端对用户名和密码校验通过后会生成一份保存当前用户相关信息的session数据和一个与之对应的的标示（通常称为session_id）,session_id生成方式选择```sessionID := uuid.NewV4()```，系统以username-session_id的key-value形式存储于redis中，设定一定有效期（30分钟）。
 3. 用户在登录成功后，服务端返回响应时将session_id写入用户浏览器的Cookie。
 4. 后续用户来自该浏览器的每次请求都后自动携带包含session_id的Cookie。
 5. 服务端通过请求中的session_id就能找到之前保存的该用户的那份session数据，从而获取该用户的相关信息。
 
-Q4:SQL注入/*
->> SQL注入是一种注入攻击手段，通过执行恶意SQL语句，将任意SQL代码插入到数据库查询，从而使攻击者完全控制Web应用程序后台的数据库服务器。避免SQL注入的一般原则是，不信任用户提交的数据。
+**Q4:SQL注入如何解决**
+
+> SQL注入是一种注入攻击手段，通过执行恶意SQL语句，将任意SQL代码插入到数据库查询，从而使攻击者完全控制Web应用程序后台的数据库服务器。避免SQL注入的一般原则是，不信任用户提交的数据。
 我们参数合法性判断和参数化查询的方法避免MySQL注入。
 采用前置参数合法性判断，举个例子如果username为`1=1;drop table users;`
 `“SELECT * FROM users WHERE 1=1;drop table users;”`会导致MySQL注入发送，因此参数中不允许包含";"字段，如果含有直接返回参数异常。
@@ -426,7 +431,8 @@ Q4:SQL注入/*
     db = db.Where("username = ?", u.Username)
 ```
 
-Q5:密码等敏感数据处理？
+**Q5:密码等敏感数据处理？**
+
 首先了解下常见的敏感数据数据加密方法
 
 |加密算法|加密方式|破解难度|

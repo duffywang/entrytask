@@ -46,14 +46,20 @@ curl 'http://127.0.0.1:8080/api/user/login' \
     	请求数(单个并发/协程) (default 1)
   -p string
     	curl文件路径
+  -m int 
+      连接数
+  -k 
+     开启长连接         
   -u string
     	压测地址
   -v string
     	验证方法 http 支持:statusCode、json webSocket支持:json
 ```
 
+选择用户登录接口api/user/login接口压测，主要关注下面指标
+1. QPS
+2. 失败率
+3. 平均耗时
+4. 最长耗时
+5. TP90 TP99 TP999
 
-- 第五步执行指令
-```
-./go-stress-testing-mac -c 200 -n 100 -p curl/login.txt
-```

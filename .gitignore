@@ -1,5 +1,7 @@
 # log files
 /log
+*.log
+
 
 # Editor
 .vscode

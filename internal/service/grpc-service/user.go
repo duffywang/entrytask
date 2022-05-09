@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
+	_"log"
 	"time"
 
 	"github.com/duffywang/entrytask/global"
@@ -37,15 +37,15 @@ func NewUserService(ctx context.Context) UserService {
 //TODO:为啥http_service Service中用的指针，grpc_service Service没有用指针，自动处理了还是和调用有关系
 //RPC服务端 用户登录方法
 func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (*proto.LoginReply, error) {
-	pu, err := svc.GetUserProfileFromCache(request.Username)
-	if err == nil && pu.Password != "" {
-		log.Println("Login Cache ")
-		pwd := hashutils.Hash(request.Password)
-		if pu.Password != pwd {
-			return nil, errors.New("Login fail : pwd incorrect")
-		}
-		return &proto.LoginReply{Username: pu.Username, Nickname: pu.Nickname, ProfilePic: pu.ProfilePic}, nil
-	}
+	// pu, err := svc.GetUserProfileFromCache(request.Username)
+	// if err == nil && pu.Password != "" {
+	// 	log.Println("Login Cache ")
+	// 	pwd := hashutils.Hash(request.Password)
+	// 	if pu.Password != pwd {
+	// 		return nil, errors.New("Login fail : pwd incorrect")
+	// 	}
+	// 	return &proto.LoginReply{Username: pu.Username, Nickname: pu.Nickname, ProfilePic: pu.ProfilePic}, nil
+	// }
 
 	//1.用户账户是否存在
 	u, err := svc.dao.GetUserInfo(request.Username)
@@ -65,7 +65,7 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 	if u.Password != pwd {
 		return nil, errors.New("Login fail : pwd incorrect")
 	}
-	log.Printf("user %v Login Password Valid Correct\n", u.Username)
+	//log.Printf("user %v Login Password Valid Correct\n", u.Username)
 
 	//3.session 存储
 	//3.1 使用uuid生成sessionID

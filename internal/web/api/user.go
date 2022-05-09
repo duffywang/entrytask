@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"text/template"
 
 	"github.com/duffywang/entrytask/internal/constant"
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
@@ -170,18 +169,18 @@ func (u User) Get(c *gin.Context) {
 		return
 	}
 
-	//文件路径名是否有问题，没有使用Gin框架的模板渲染
-	tmpl, err := template.ParseFiles("template/user.tmpl")
-	if err != nil {
-		fmt.Println("template.ParseFiles failed", err)
-		return
-	}
+	// //文件路径名是否有问题，没有使用Gin框架的模板渲染
+	// tmpl, err := template.ParseFiles("template/user.tmpl")
+	// if err != nil {
+	// 	fmt.Println("template.ParseFiles failed", err)
+	// 	return
+	// }
 
-	err = tmpl.Execute(c.Writer, getUserResponse)
-	if err != nil {
-		fmt.Println("template.Execute failed", err)
-		return
-	}
+	// err = tmpl.Execute(c.Writer, getUserResponse)
+	// if err != nil {
+	// 	fmt.Println("template.Execute failed", err)
+	// 	return
+	// }
 
 	resp.ResponseOK("Get User Success", getUserResponse)
 
