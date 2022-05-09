@@ -5,9 +5,8 @@ import (
 	"strings"
 	"time"
 
-	http_service "github.com/duffywang/entrytask/internal/service/http-service"
-	"github.com/duffywang/entrytask/internal/status"
 	"github.com/duffywang/entrytask/internal/constant"
+	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/pkg/response"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +16,7 @@ func SessionRequired(c *gin.Context) {
 	res := response.NewResponse(c)
 	sessionID, err := c.Cookie(constant.SessionId)
 	if err != nil {
-		res.ResponseError(status.SessionError)
+		res.ResponseError(constant.SessionError)
 		return
 	}
 	c.Set(constant.SessionId, sessionID)
@@ -32,7 +31,7 @@ func LoginRequired(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	username, err := svc.AuthUser(sessionID)
 	if err != nil {
-		res.ResponseError(status.UserLoginError)
+		res.ResponseError(constant.UserLoginError)
 		return
 	}
 	c.Set("username", username)

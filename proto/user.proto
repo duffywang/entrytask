@@ -48,6 +48,7 @@ message GetUserReply {
     string username = 1;
     string nickname = 2;
     string profile_pic = 3;
+    string password = 4;
     reserved 10;
 }
 
@@ -56,5 +57,7 @@ message RegisterUserReply {
 }
 
 message EditUserReply {
-    
+    string username = 1;
+    string nickname = 2;
+    string profile_pic = 3;
 }

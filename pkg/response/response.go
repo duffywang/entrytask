@@ -2,9 +2,7 @@ package response
 
 import (
 	"net/http"
-
-	"github.com/duffywang/entrytask/internal/status"
-
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +20,7 @@ func (r *Response) ResponseOK(msg string, data any) {
 	r.Ctx.JSON(http.StatusOK, response)
 }
 
-func (r *Response) ResponseError(err *status.Error) {
+func (r *Response) ResponseError(err *constant.Error) {
 	response := gin.H{"code": err.GetCode(), "msg": err.GetMsg()}
 	details := err.GetData()
 	if len(details) > 0 {

@@ -2,8 +2,8 @@ package api
 
 import (
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
-	"github.com/duffywang/entrytask/internal/status"
 	"github.com/duffywang/entrytask/pkg/response"
+	"github.com/duffywang/entrytask/internal/constant"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +19,7 @@ func (f File) Upload(c *gin.Context) {
 	resp := response.NewResponse(c)
 	file, fileHeader, err := c.Request.FormFile("file")
 	if err != nil {
-		resp.ResponseError(status.FileFormError)
+		resp.ResponseError(constant.FileFormError)
 		return
 	}
 
@@ -28,7 +28,7 @@ func (f File) Upload(c *gin.Context) {
 	svc := http_service.NewService(c.Request.Context())
 	uploadResponse, err := svc.Upload(&param)
 	if err != nil {
-		resp.ResponseError(status.FileUploadError)
+		resp.ResponseError(constant.FileUploadError)
 		return
 	}
 

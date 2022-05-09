@@ -29,10 +29,10 @@ func (d *Dao) CreateUser(userName, nickName, passWord, profilePic string, status
 }
 
 //DAO 更新用户信息
-func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
+func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) (*models.User, error) {
 	//通过id查询到用户
 	u := models.User{
-		ID: id,
+		ID:        id,
 		UpdatedAt: uint32(time.Now().Unix()),
 	}
 
@@ -45,8 +45,8 @@ func (d *Dao) UpdateUser(id uint32, nickName, profilePic string) error {
 		values[constant.ProfilePic] = profilePic
 	}
 
-	err := u.UpdateUserInfo(d.engine, values)
-	return err
+	user, err := u.UpdateUserInfo(d.engine, values)
+	return user,err
 }
 
 //DAO 获取用户信息
@@ -61,8 +61,8 @@ func (d *Dao) GetUserInfo(userName string) (models.User, error) {
 }
 
 //DAO 删除用户
- func (d *Dao) DeleteUserInfo(userName string)  error {
+func (d *Dao) DeleteUserInfo(userName string) error {
 	u := models.User{Username: userName}
 	err := u.DeleteUser(d.engine)
 	return err
- }
+}

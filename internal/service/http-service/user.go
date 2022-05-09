@@ -18,13 +18,13 @@ type RegisterUserReuqest struct {
 	Username   string `form:"username" binding:"required,min=3,max=20"`
 	Password   string `form:"password" binding:"required,min=3,max=20"`
 	Nickname   string `form:"nickname" binding:"-"`
-	ProfilePic string `form:"profilepic" binding:"-"` 
+	ProfilePic string `form:"profile_pic" binding:"-"` 
 }
 
 type EditUserRequest struct {
 	SessionID  string `form:"session_id"`
 	Nickname   string `form:"nickname" binding:"min=3,max=20"`
-	ProfilePic string `form:"profilepic" binding:"-"`
+	ProfilePic string `form:"profile_pic" binding:"-"`
 }
 
 type GetUserRequest struct {

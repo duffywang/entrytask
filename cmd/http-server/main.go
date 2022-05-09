@@ -180,6 +180,6 @@ func setupLogger() error {
 		return err
 	}
 	log.SetOutput(logfile)
-	log.SetFlags(log.Lshortfile | log.Ldate)
+	log.SetFlags(log.Llongfile | log.Ltime)
 	return err
 }

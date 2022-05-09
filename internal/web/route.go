@@ -12,7 +12,9 @@ import (
 func NewRouter() *gin.Engine {
 	//gin.Default 默认使用了Logger 和 Recovery中间件，Logger将日志写入gin.DefaultWriter,Recovery中间件会recover任何panic,返回500状态码
 	r := gin.New()
-	
+	// d := api.NewDispatcher(200)
+	// d.Run()
+
 	ping := api.NewPing()
 	user := api.NewUser()
 	file := api.NewFile()

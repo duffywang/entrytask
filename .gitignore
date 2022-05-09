@@ -1,0 +1,5 @@
+# log files
+/log
+
+# Editor
+.vscode

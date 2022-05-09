@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/duffywang/entrytask/global"
@@ -13,6 +14,7 @@ import (
 	"github.com/duffywang/entrytask/pkg/utils/hashutils"
 	"github.com/duffywang/entrytask/proto"
 	uuid "github.com/satori/go.uuid"
+	_ "golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -35,22 +37,35 @@ func NewUserService(ctx context.Context) UserService {
 //TODO:为啥http_service Service中用的指针，grpc_service Service没有用指针，自动处理了还是和调用有关系
 //RPC服务端 用户登录方法
 func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (*proto.LoginReply, error) {
-	//web(http-server)-service(grpc-server)-dao
+	pu, err := svc.GetUserProfileFromCache(request.Username)
+	if err == nil && pu.Password != "" {
+		log.Println("Login Cache ")
+		pwd := hashutils.Hash(request.Password)
+		if pu.Password != pwd {
+			return nil, errors.New("Login fail : pwd incorrect")
+		}
+		return &proto.LoginReply{Username: pu.Username, Nickname: pu.Nickname, ProfilePic: pu.ProfilePic}, nil
+	}
+
 	//1.用户账户是否存在
 	u, err := svc.dao.GetUserInfo(request.Username)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("Login Fail : User Not Exist")
+		}
 		return nil, err
 	}
-	//2.用户密码是否正确
+
+	//web(http-server)-service(grpc-server)-dao
+
+	//2.验证用户密码是否正确
+	//bcrypt耗时太高，性能较差，选择MD5+salt方法
+	//err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(request.Password))
 	pwd := hashutils.Hash(request.Password)
 	if u.Password != pwd {
-		//2.1 密码错误
-		return nil, errors.New("userservice Login fail : pwd incorrect")
-	} else if u.Status != 0 {
-		//2.2 用户被删除
-		return nil, errors.New("userservice Login fail : user status disabled")
+		return nil, errors.New("Login fail : pwd incorrect")
 	}
-	fmt.Println("Login Password Valid Correct")
+	log.Printf("user %v Login Password Valid Correct\n", u.Username)
 
 	//3.session 存储
 	//3.1 使用uuid生成sessionID
@@ -60,6 +75,7 @@ func (svc UserService) Login(ctx context.Context, request *proto.LoginRequest) (
 		Username:   u.Username,
 		Nickname:   u.Nickname,
 		ProfilePic: u.ProfilePic,
+		Password:   u.Password,
 	}
 
 	_ = svc.cache.Set(svc.ctx, constant.SessionIdWithColon+sessionID.String(), u.Username, time.Hour)
@@ -75,9 +91,10 @@ func (svc UserService) RegisterUser(ctx context.Context, request *proto.Register
 	_, err := svc.dao.GetUserInfo(request.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		//说明已存在
-		return nil, errors.New(" RegisterUser Fail : Username exist")
+		return nil, errors.New("RegisterUser Fail : Username Exist")
 	}
 	//数据库中不存在要注册的username，则继续执行注册逻辑
+	//pwd, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	pwd := hashutils.Hash(request.Password)
 	_, err = svc.dao.CreateUser(request.Username, request.Nickname, pwd, request.ProfilePic, 0)
 	if err != nil {
@@ -105,23 +122,23 @@ func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequ
 	}
 
 	//4.修改用户信息
-	err = svc.dao.UpdateUser(u.ID, request.Nickname, request.ProfilePic)
+	user, err := svc.dao.UpdateUser(u.ID, request.Nickname, request.ProfilePic)
 	if err != nil {
 		return nil, errors.New("userservice Edit Fail : Update User Information Fail")
 	}
 
 	//5.更新缓存
 	getUserResponse := &proto.GetUserReply{
-		Username:   u.Username,
-		Nickname:   u.Nickname,
-		ProfilePic: u.ProfilePic,
+		Username:   user.Username,
+		Nickname:   user.Nickname,
+		ProfilePic: user.ProfilePic,
 	}
 	err = svc.UpdateUserProfileToCache(username, getUserResponse)
 	if err != nil {
 		return nil, errors.New("userservice Edit Fail : Cache User Information Fail")
 	}
 
-	return &proto.EditUserReply{}, nil
+	return &proto.EditUserReply{Username: user.Username, Nickname: user.Nickname, ProfilePic: user.ProfilePic}, nil
 }
 
 //RPC服务端 获取用户信息方法
@@ -151,21 +168,19 @@ func (svc UserService) GetUsernameFromCache(sessionID string) (string, error) {
 
 //更新缓存中用户信息
 func (svc UserService) UpdateUserProfileToCache(key string, u *proto.GetUserReply) error {
-	//TODO：全局常量
-	cacheKey := constant.ProfilePicWithColon + key
+	cacheKey := constant.ProfileWithColon + key
 
 	cacheUser, err := json.Marshal(u)
 	if err != nil {
 		fmt.Printf("userservice GetUser UpdateUserProfile json Marchal Failed")
 	}
-	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, time.Hour*24)
+	err = svc.cache.Set(svc.ctx, cacheKey, cacheUser, time.Minute*30)
 	return err
 }
 
 //从缓存中获取用户信息
 func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserReply, error) {
-	//TODO:全局常量
-	cacheKey := constant.ProfilePicWithColon + key
+	cacheKey := constant.ProfileWithColon + key
 
 	value, err := svc.cache.Get(svc.ctx, cacheKey)
 	if err != nil {
@@ -176,5 +191,3 @@ func (svc UserService) GetUserProfileFromCache(key string) (*proto.GetUserReply,
 		return &getUserResponse, nil
 	}
 }
-
-

@@ -1,4 +1,4 @@
-package status
+package constant
 
 //业务自定义状态码
 var (

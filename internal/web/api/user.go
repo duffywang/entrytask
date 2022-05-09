@@ -6,12 +6,109 @@ import (
 	"net/http"
 	"text/template"
 
-	http_service "github.com/duffywang/entrytask/internal/service/http-service"
-	"github.com/duffywang/entrytask/internal/status"
 	"github.com/duffywang/entrytask/internal/constant"
+	http_service "github.com/duffywang/entrytask/internal/service/http-service"
 	"github.com/duffywang/entrytask/pkg/response"
 	"github.com/gin-gonic/gin"
 )
+
+const (
+	MaxWorker = 100
+	MaxQueue  = 200
+)
+
+var JobQueue chan Job
+
+func init() {
+	JobQueue = make(chan Job, MaxQueue)
+}
+
+type Payload struct {
+	C      *gin.Context
+	Method string
+}
+
+type Job struct {
+	PayLoad Payload
+}
+
+//二级具体工作
+type Worker struct {
+	WorkerPool chan chan Job
+	JobChannel chan Job
+	quit       chan bool
+}
+
+func NewWorker(workerPool chan chan Job) Worker {
+	return Worker{
+		WorkerPool: workerPool,
+		JobChannel: make(chan Job),
+		quit:       make(chan bool),
+	}
+}
+
+func (w Worker) Start() {
+	go func() {
+		for {
+			w.WorkerPool <- w.JobChannel
+			select {
+			case job := <-w.JobChannel:
+				//time.Sleep(100 * time.Millisecond)
+				switch job.PayLoad.Method {
+				case "Login":
+					fmt.Println("Worker Login")
+				case "Register":
+					fmt.Println("Worker Register")
+				case "Get":
+					fmt.Println("Worker Get")
+				case "Edit":
+					fmt.Println("Worker Edit")
+				}
+				fmt.Printf("处理成功：%v\n", job)
+			case <-w.quit:
+				return
+
+			}
+		}
+	}()
+}
+
+func (w Worker) Stop() {
+	go func() {
+		w.quit <- true
+	}()
+}
+
+//一级分发器
+type Dispatcher struct {
+	WorkerPool chan chan Job
+}
+
+func NewDispatcher(maxWorkers int) *Dispatcher {
+	pool := make(chan chan Job, maxWorkers)
+	return &Dispatcher{WorkerPool: pool}
+}
+
+func (d *Dispatcher) Run() {
+	for i := 0; i < MaxWorker; i++ {
+		worker := NewWorker(d.WorkerPool)
+		worker.Start()
+	}
+	go d.dispatch()
+}
+
+func (d *Dispatcher) dispatch() {
+	for {
+		select {
+		case job := <-JobQueue:
+			go func(job Job) {
+				JobChannel := <-d.WorkerPool
+
+				JobChannel <- job
+			}(job)
+		}
+	}
+}
 
 type User struct{}
 
@@ -21,7 +118,6 @@ func NewUser() User {
 
 //API层 用户登录
 func (u User) Login(c *gin.Context) {
-
 	//返回结果和参数
 	resp := response.NewResponse(c)
 
@@ -29,17 +125,22 @@ func (u User) Login(c *gin.Context) {
 	param := http_service.LoginRequest{}
 	err := c.ShouldBind(&param)
 	//log.Printf("Login param %v\n", param)
-	if err != nil {
-		resp.ResponseError(status.InvalidParamsError)
+	if err != nil || param.Username == "" || param.Password == "" {
+		resp.ResponseError(constant.InvalidParamsError)
 		return
 	}
+	// if i := strings.Index(param.Username, ";"); i != -1 {
+	// 	resp.ResponseError(constant.InvalidParamsError)
+	// 	return
+	// }
+
 	//使用到服务，依赖倒置
 	svc := http_service.NewService(c.Request.Context())
 	loginResponse, err := svc.Login(&param)
 	if err != nil {
 		log.Println(err.Error())
 		c.HTML(http.StatusOK, "login.html", nil)
-		resp.ResponseError(status.UserLoginError)
+		resp.ResponseError(constant.UserLoginError)
 		return
 	}
 	c.HTML(http.StatusOK, "profile.html", gin.H{
@@ -65,7 +166,7 @@ func (u User) Get(c *gin.Context) {
 	getUserResponse, err := svc.GetUserInfo(&param)
 	if err != nil {
 		log.Println(err.Error())
-		resp.ResponseError(status.UserGetError)
+		resp.ResponseError(constant.UserGetError)
 		return
 	}
 
@@ -93,7 +194,7 @@ func (u User) Register(c *gin.Context) {
 	//登录后具有sessionID信息，
 	err := c.ShouldBind(&param)
 	if err != nil {
-		resp.ResponseError(status.InvalidParamsError)
+		resp.ResponseError(constant.InvalidParamsError)
 		return
 	}
 	svc := http_service.NewService(c.Request.Context())
@@ -101,7 +202,7 @@ func (u User) Register(c *gin.Context) {
 	registerUserResponse, err := svc.RegisterUser(&param)
 	if err != nil {
 		log.Println(err.Error())
-		resp.ResponseError(status.UserRegisterError)
+		resp.ResponseError(constant.UserRegisterError)
 		return
 	}
 	c.HTML(http.StatusOK, "login.html", nil)
@@ -116,18 +217,17 @@ func (u User) Edit(c *gin.Context) {
 
 	err := c.ShouldBind(&param)
 	if err != nil {
-		resp.ResponseError(status.InvalidParamsError)
+		resp.ResponseError(constant.InvalidParamsError)
 		return
 	}
 	svc := http_service.NewService(c.Request.Context())
 	//登录后具有sessionID信息，请求中带有session_id，通过sessionID查询用户信息
 	sessionID, _ := c.Get(constant.SessionId)
-	//TODO：为什么要这样？
 	param.SessionID = fmt.Sprintf("%v", sessionID)
 	editUserResponse, err := svc.EditUser(&param)
 	if err != nil {
 		log.Println(err.Error())
-		resp.ResponseError(status.UserEditError)
+		resp.ResponseError(constant.UserEditError)
 		return
 	}
 

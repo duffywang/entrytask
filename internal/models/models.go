@@ -25,7 +25,7 @@ func NewDBEngine(databaseSetting *setting.DBSetting) (*gorm.DB, error) {
 		databaseSetting.ParseTime,
 	)))
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 	sqlDB, _ := db.DB()
 

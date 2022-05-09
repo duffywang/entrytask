@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 
 	"github.com/duffywang/entrytask/internal/constant"
@@ -42,12 +40,12 @@ func (u User) CreateUserInfo(db *gorm.DB) (*User, error) {
 }
 
 //更新用户信息
-func (u User) UpdateUserInfo(db *gorm.DB, values any) error {
+func (u User) UpdateUserInfo(db *gorm.DB, values any) (*User, error) {
 	err := db.Debug().Model(&u).Updates(values).Where("id = ? AND status = ?", u.ID, 0).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &u, nil
 }
 
 //使用设定的表名
@@ -58,11 +56,9 @@ func (u User) TableName() string {
 //通过用户名获取用户信息
 func (u User) GetUserInfoByName(db *gorm.DB) (User, error) {
 	var user User
-	//临时使用"user_table"
+	//临时使用Table("user_table")
 	db = db.Where("username = ?", u.Username)
-	err := db.First(&user).Error
-	//db = db.Table("user_table").Find(&user, "username = ?", u.Username)
-	fmt.Printf("Login.GetUserInfo.GetUserInfoByName User is : %+v\n", user)
+	err := db.Select("username", "password", "nickname", "profile_pic").Find(&user).Error
 	if err != nil {
 		return user, err
 	}
