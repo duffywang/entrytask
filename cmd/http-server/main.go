@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"strings"
 	"time"
 
@@ -61,6 +62,8 @@ func main() {
 
 //初始化
 func init() {
+	cpuNum := runtime.NumCPU()
+	runtime.GOMAXPROCS(cpuNum - 1)
 	err := setupFlag()
 	if err != nil {
 		log.Fatalf("HTTP Set up Flag fail: %v\n", err)

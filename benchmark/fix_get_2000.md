@@ -1,4 +1,4 @@
-admindeMBP-21:go-stress-testing wangyufei$ go run main.go -c 2000 -n 200 -k -m 100 -H 'cookie:session_id=5ef999ca-e64b-4b0f-a0ee-e47c73a44a24' -u 'http://127.0.0.1:8080/api/user/get'
+admindeMBP-21:go-stress-testing wangyufei$ go run main.go -c 2000 -n 200 -k -m 100 -H 'cookie:session_id=a05141d0-3145-48a2-b1af-f59424cb5313' -u 'http://127.0.0.1:8080/api/user/get'
 
  开始启动  并发数:2000 请求数:200 请求参数: 
 request:
@@ -62,11 +62,12 @@ request:
 *************************  结果 stat  ****************************
 处理协程数量: 2000
 请求总数（并发数*请求数 -c * -n）: 400000 总请求时间: 38.625 秒 successNum: 400000 failureNum: 0
-QPS:1000
+QPS:10000
 失败率:0
 平均耗时:190ms
 tp90: 235ms
 tp95: 253ms
 tp99: 596ms
 最长耗时:2182ms
+cpu.busy: 
 *************************  结果 end   ****************************

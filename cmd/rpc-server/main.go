@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/duffywang/entrytask/global"
@@ -27,6 +28,8 @@ var (
 
 //RPC服务端初始化配置
 func init() {
+	cpuNum := runtime.NumCPU()
+	runtime.GOMAXPROCS(cpuNum - 1)
 	err := setupFlag()
 	if err != nil {
 		log.Fatalf("GRPC Set up Flag fail: %v\n", err)

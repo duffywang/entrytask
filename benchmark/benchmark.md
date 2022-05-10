@@ -1,5 +1,23 @@
 
-# 压测简介
+# 压测服务器
+- 机器个数：1
+- CPU：8核
+- 内存：16G
+- 系统：MaxOS
+- 数据库MySQL：5.6.14 
+- 数据库数据量：10,000,000
+
+# 观察指标
+主要关注下面指标
+1. QPS
+2. 失败率
+3. 平均耗时
+4. 最长耗时
+5. TP90 TP99 TP999
+6. cpu.busy
+
+
+# 压测工具简介
 使用开源压测工具go-stress-testing，工具具体介绍如下
 [go-stress-testing](https://github.com/link1st/go-stress-testing)
 
@@ -32,7 +50,7 @@ curl 'http://127.0.0.1:8080/api/user/login' \
 ```
 - 第三步将上面请求数据写入curl/login.txt文件中
 
-- 第四步了解指令参数意义
+- 第四步选择压测参数
 ```
   -H value
     	自定义头信息传递给服务器 示例:-H 'Content-Type: application/json'
@@ -56,10 +74,21 @@ curl 'http://127.0.0.1:8080/api/user/login' \
     	验证方法 http 支持:statusCode、json webSocket支持:json
 ```
 
-选择用户登录接口api/user/login接口压测，主要关注下面指标
-1. QPS
-2. 失败率
-3. 平均耗时
-4. 最长耗时
-5. TP90 TP99 TP999
+# 压测结果
+## 压测结论
+1. 所有压测请求均返回正确的结果
+2. 200并发固定用户(get接口)QPS达到11000，达到QPS大于3000的目标。
+3. 200并发随机用户(login接口)QPS达到2500，达到QPS大于1000的目标（不选get接口因为SeesionID无法随机获取）。
+4. 2000并发固定用户(get接口)QPS达到10000，达到QPS大于1500的目标。
+5. 2000并发随机用户(login接口)QPS达到2500，达到QPS大于800的目标。
 
+## 压测数据
+
+|形式_接口_并发量|QPS|失败率|平均耗时|TP90|TP99|TP999|最长耗时|
+|-----------|------|-----|-----|----|----|----|----|
+|fix_get_200|11000|0|18ms|22ms|24ms|28ms|89ms|
+|fix_get_2000|10000|0|190ms|235ms|253ms|596ms|2182ms|
+|fix_login_200|2530|0|79ms|115ms|128ms|161ms|300ms|
+|fix_login_2000|2400|0|800ms|1066ms|1401ms|2775ms|3063ms|
+|rand_login_200|2530|0|79ms|111ms|124ms|152ms|377ms|
+|rand_login_2000|2620|0|740ms|970ms|1356ms|2948ms|3051ms|

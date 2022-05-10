@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	_"log"
+	_ "log"
 	"time"
 
 	"github.com/duffywang/entrytask/global"
@@ -116,18 +116,14 @@ func (svc UserService) EditUser(ctx context.Context, request *proto.EditUserRequ
 	if err != nil {
 		return nil, errors.New("userservice Edit fail : Get User Infoemation Fail")
 	}
-	//3.用户状态合法，0和1放在常量里面
-	if u.Status == 1 {
-		return nil, errors.New("userservice Edit fail : User Status Disabled")
-	}
 
-	//4.修改用户信息
+	//3.修改用户信息
 	user, err := svc.dao.UpdateUser(u.ID, request.Nickname, request.ProfilePic)
 	if err != nil {
 		return nil, errors.New("userservice Edit Fail : Update User Information Fail")
 	}
 
-	//5.更新缓存
+	//4.更新缓存
 	getUserResponse := &proto.GetUserReply{
 		Username:   user.Username,
 		Nickname:   user.Nickname,
@@ -154,6 +150,17 @@ func (svc UserService) GetUser(ctx context.Context, request *proto.GetUserReques
 	if err != nil {
 		return nil, errors.New("userservice Get Fail : Get User Profile From Cache Fail")
 	}
+
+	//3.数据中获取用户信息
+	if u == nil {
+		mu, err := svc.dao.GetUserInfo(username)
+		return &proto.GetUserReply{
+			Username:   mu.Username,
+			Nickname:   mu.Nickname,
+			ProfilePic: mu.ProfilePic,
+		}, err
+	}
+
 	return u, nil
 }
 

@@ -3,7 +3,10 @@ package api
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/duffywang/entrytask/internal/constant"
 	http_service "github.com/duffywang/entrytask/internal/service/http-service"
@@ -123,6 +126,8 @@ func (u User) Login(c *gin.Context) {
 	//检查数据格式是否对应正确
 	param := http_service.LoginRequest{}
 	err := c.ShouldBind(&param)
+	rand.Seed(time.Now().UnixNano())
+	param.Username = "test" + strconv.Itoa(rand.Intn(100000))
 	//log.Printf("Login param %v\n", param)
 	if err != nil || param.Username == "" || param.Password == "" {
 		resp.ResponseError(constant.InvalidParamsError)
