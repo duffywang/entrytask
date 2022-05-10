@@ -21,9 +21,8 @@ func NewRouter() *gin.Engine {
 	//加载其他
 	r.LoadHTMLGlob("view/*")
 
-	//r.Use(middleware.TimeMonitor)
+	r.Use(middleware.TimeMonitor)
 	pingGroup := r.Group("api")
-	//TODO:Login(c *gin.Context) 没有带参数
 	pingGroup.GET("/ping", ping.Ping)
 
 	r.GET("/api/index", func(ctx *gin.Context) {
@@ -53,7 +52,7 @@ func NewRouter() *gin.Engine {
 	}
 
 	uploadGroup := r.Group("api")
-	//uploadGroup.Use(middleware.LoginRequired)
+	uploadGroup.Use(middleware.LoginRequired)
 	{
 		uploadGroup.POST("/file/upload", file.Upload)
 	}

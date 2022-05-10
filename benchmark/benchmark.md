@@ -9,22 +9,21 @@
 
 # 观察指标
 主要关注下面指标
-1. QPS
-2. 失败率
-3. 平均耗时
-4. 最长耗时
-5. TP90 TP99 TP999
-6. cpu.busy
+- QPS
+- 失败率
+- 平均耗时
+- 最长耗时
+- TP90 TP99 TP999
 
 
 # 压测工具简介
 使用开源压测工具go-stress-testing，工具具体介绍如下
-[go-stress-testing](https://github.com/link1st/go-stress-testing)
+[go-stress-testing](https://github.com/link1st/go-stress-testing)。
 
 
-- 第一步下载 [go-stress-testing](https://github.com/link1st/go-stress-testing/releases)
+- 第一步下载 [go-stress-testing](https://github.com/link1st/go-stress-testing/releases)。
 
-- 第二步创建压测数据
+- 第二步创建压测数据。
 ```
 curl 'http://127.0.0.1:8080/api/user/login' \
   -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
@@ -48,9 +47,9 @@ curl 'http://127.0.0.1:8080/api/user/login' \
   --compressed
 
 ```
-- 第三步将上面请求数据写入curl/login.txt文件中
+- 第三步将上面请求数据写入curl/login.txt文件中。
 
-- 第四步选择压测参数
+- 第四步选择压测参数。
 ```
   -H value
     	自定义头信息传递给服务器 示例:-H 'Content-Type: application/json'
@@ -82,6 +81,7 @@ curl 'http://127.0.0.1:8080/api/user/login' \
 4. 2000并发固定用户(get接口)QPS达到10000，达到QPS大于1500的目标。
 5. 2000并发随机用户(login接口)QPS达到2500，达到QPS大于800的目标。
 
+
 ## 压测数据
 
 |形式_接口_并发量|QPS|失败率|平均耗时|TP90|TP99|TP999|最长耗时|
@@ -92,3 +92,15 @@ curl 'http://127.0.0.1:8080/api/user/login' \
 |fix_login_2000|2400|0|800ms|1066ms|1401ms|2775ms|3063ms|
 |rand_login_200|2530|0|79ms|111ms|124ms|152ms|377ms|
 |rand_login_2000|2620|0|740ms|970ms|1356ms|2948ms|3051ms|
+
+注：
+压测过程中的tips:
+1. 客户端发起的请求使用HTTP 1.1协议，使用长连接，不要使用短连接。
+2. 客户端请求连接数可适当调大，避免出现`read: connection reset by peer`
+3. 压测过程中关掉不必要的后台程序，避免产生 `Socket/File : too many open files(打开的文件过多) `、`EOF`报错。
+4. 在Mac进行性能测试可能存在系统资源限制，可尝试下面指令：
+```
+sudo sysctl -w kern.ipc.somaxconn=2048
+sudo sysctl -w kern.maxfiles=12288
+ulimit -n 10000
+```
